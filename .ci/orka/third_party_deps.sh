@@ -31,7 +31,7 @@ cd .. && \
 sudo rm -rf boost_1_86_0
 
 # Install python modules required by PyTorch
-sudo pip3 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo PIP_CERT=/etc/ssl/cert.pem pip3 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Build and install PyTorch
 git clone --depth=1 --branch=v2.7.1 https://github.com/pytorch/pytorch.git && \
