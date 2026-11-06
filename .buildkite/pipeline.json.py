@@ -125,6 +125,12 @@ def main():
                                                        ".buildkite/pipelines/check_build_regression.yml.sh",
                                                        soft_fail=True))
 
+    # Scan the shipped third-party libraries (Boost, libtorch, ...) with Snyk; the
+    # Snyk GitHub integration only sees the build-image Dockerfiles.
+    pipeline_steps.append(pipeline_steps.generate_step("Upload Snyk scan of shipped third-party libraries",
+                                                       ".buildkite/pipelines/snyk_sbom_scan.yml.sh",
+                                                       soft_fail=True))
+
     # Validate the PyTorch allowlist against HuggingFace models when
     # triggered from the PyTorch edge pipeline.  Runs in a python:3
     # container since the build/test images don't include Python.
