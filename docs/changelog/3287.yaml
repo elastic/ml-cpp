@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3287
+summary: Fix a lost shutdown wakeup that could hang the controller's spawned process tracker thread
+type: bug
