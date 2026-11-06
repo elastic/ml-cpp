@@ -157,6 +157,61 @@ std::string noConfinementMessage(const SHostConfinement& host, const std::string
            "with the seccomp system call filter only.";
 }
 
+namespace {
+
+std::string unavailableHostCapabilityHint(const SHostConfinement& host) {
+    if (host.s_LandlockAbi == 0) {
+        return "Landlock needs Linux 5.13 or later with CONFIG_SECURITY_LANDLOCK enabled and "
+               "landlock included in the boot-time LSM list; full Sandbox2 additionally needs "
+               "this process to be allowed unprivileged user namespaces.";
+    }
+    if (host.s_LandlockAbi < 0) {
+        return "Landlock is blocked for this process by a seccomp filter or LSM policy; full "
+               "Sandbox2 additionally needs unprivileged user namespaces to be permitted.";
+    }
+    return std::string{};
+}
+
+} // namespace
+
+std::string selfCheckFacts(const SHostConfinement& host,
+                           const std::string& tmpDir,
+                           bool tmpDirWritable,
+                           bool tmpDirNoexec) {
+    return "Sandbox2 environment self-check: sandbox2=" + describe(host.s_Sandbox2) +
+           ", landlock=" + describeLandlock(host.s_LandlockAbi) +
+           ", unprivileged_userns_clone=" + host.s_UnprivilegedUsernsClone +
+           ", max_user_namespaces=" + host.s_MaxUserNamespaces + ", TMPDIR=" + tmpDir +
+           ", TMPDIR writable=" + (tmpDirWritable ? "yes" : "no") +
+           ", TMPDIR noexec=" + (tmpDirNoexec ? "yes" : "no");
+}
+
+std::string selfCheckConclusion(const SHostConfinement& host) {
+    switch (host.s_Level) {
+    case EConfinementLevel::E_Sandbox2:
+        return ". pytorch_inference will run with full Sandbox2 isolation on this host.";
+    case EConfinementLevel::E_Landlock:
+        return ". pytorch_inference will run with Landlock filesystem confinement on this "
+               "host because full Sandbox2 isolation is not available. " +
+               fullSandboxRemedy(host);
+    case EConfinementLevel::E_Unavailable: {
+        const std::string landlockWhy{
+            host.s_LandlockAbi == 0
+                ? "Landlock is not supported by this kernel"
+                : "Landlock is " + describeLandlock(host.s_LandlockAbi)};
+        std::string conclusion{". Sandboxed pytorch_inference launches are refused on this "
+                               "host because neither Sandbox2 nor Landlock is available (" +
+                               landlockWhy + ")."};
+        const std::string hint{unavailableHostCapabilityHint(host)};
+        if (hint.empty() == false) {
+            conclusion += " " + hint;
+        }
+        return conclusion;
+    }
+    }
+    return std::string{};
+}
+
 #if !defined(__linux__) || !defined(SANDBOX2_AVAILABLE)
 
 ESandbox2Capability probeSandbox2Capability() {
@@ -168,10 +223,9 @@ const SHostConfinement& hostConfinement() {
     return host;
 }
 
-void logSandbox2EnvironmentSelfCheck() {
-    // Deliberately silent rather than logging "not applicable" on every
-    // controller start: a build with no Sandbox2 support never routes to it,
-    // so the line would be noise on every non-Linux node.
+void logSandbox2EnvironmentSelfCheck(const SHostConfinement& /*host*/) {
+    // Deliberately silent: a build with no Sandbox2 support never routes to
+    // the sandboxed pytorch_inference path.
 }
 
 #endif // !__linux__ || !SANDBOX2_AVAILABLE
@@ -405,15 +459,7 @@ const SHostConfinement& hostConfinement() {
     return host;
 }
 
-void logSandbox2EnvironmentSelfCheck() {
-    static bool logged{false};
-    if (logged) {
-        return;
-    }
-    logged = true;
-
-    const SHostConfinement& host{hostConfinement()};
-
+void logSandbox2EnvironmentSelfCheck(const SHostConfinement& host) {
     // The passive sysctl values are what the frozen prior art (ml-cpp#2873's
     // CSandbox2Diagnostics) reported on its own. They never decide anything
     // - both are host-global and are inherited unchanged by a container whose
@@ -421,40 +467,12 @@ void logSandbox2EnvironmentSelfCheck() {
     // what tells an administrator which knob to turn.
     const char* tmpDirEnv{::getenv("TMPDIR")};
     const std::string tmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
-    const std::string facts{
-        "Sandbox2 environment self-check: sandbox2=" + describe(host.s_Sandbox2) +
-        ", landlock=" + describeLandlock(host.s_LandlockAbi) +
-        ", unprivileged_userns_clone=" + host.s_UnprivilegedUsernsClone +
-        ", max_user_namespaces=" + host.s_MaxUserNamespaces + ", TMPDIR=" + tmpDir +
-        ", TMPDIR writable=" + (::access(tmpDir.c_str(), W_OK) == 0 ? "yes" : "no") +
-        ", TMPDIR noexec=" + (pathHasNoexecFlag(tmpDir.c_str()) ? "yes" : "no")};
+    const std::string message{selfCheckFacts(host, tmpDir,
+                                             ::access(tmpDir.c_str(), W_OK) == 0,
+                                             pathHasNoexecFlag(tmpDir.c_str())) +
+                              selfCheckConclusion(host)};
 
-    // Logged at controller start, before any launch, and regardless of
-    // xpack.ml.trained_models.sandbox_enabled (which the controller only
-    // learns per launch) - so each message says what *would* happen if the
-    // setting is true.
-    switch (host.s_Level) {
-    case EConfinementLevel::E_Sandbox2:
-        LOG_INFO(<< facts
-                 << ". Models launched with xpack.ml.trained_models.sandbox_enabled=true "
-                    "will run with full Sandbox2 isolation.");
-        break;
-    case EConfinementLevel::E_Landlock:
-        // A supported, deliberate degradation - INFO, not WARN.
-        LOG_INFO(<< facts
-                 << ". Models launched with xpack.ml.trained_models.sandbox_enabled=true "
-                    "will run with Landlock filesystem confinement, because full Sandbox2 "
-                    "isolation is not available on this host. "
-                 << fullSandboxRemedy(host));
-        break;
-    case EConfinementLevel::E_Unavailable:
-        LOG_WARN(<< facts
-                 << ". This host supports neither Sandbox2 nor Landlock, so every model "
-                    "deployment on this node will fail to start while "
-                    "xpack.ml.trained_models.sandbox_enabled is true; deactivate that "
-                    "setting (set it to false) to run models here.");
-        break;
-    }
+    LOG_INFO(<< message);
 }
 
 } // namespace sandbox
