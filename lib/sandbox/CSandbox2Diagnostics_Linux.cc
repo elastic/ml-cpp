@@ -460,11 +460,8 @@ const SHostConfinement& hostConfinement() {
 }
 
 void logSandbox2EnvironmentSelfCheck(const SHostConfinement& host) {
-    // The passive sysctl values are what the frozen prior art (ml-cpp#2873's
-    // CSandbox2Diagnostics) reported on its own. They never decide anything
-    // - both are host-global and are inherited unchanged by a container whose
-    // seccomp or LSM policy denies user namespaces regardless - but they are
-    // what tells an administrator which knob to turn.
+    // Sysctls are host-global and do not decide the rung; log them so operators
+    // know which knob to turn when a container policy denies namespaces anyway.
     const char* tmpDirEnv{::getenv("TMPDIR")};
     const std::string tmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
     const std::string message{selfCheckFacts(host, tmpDir,

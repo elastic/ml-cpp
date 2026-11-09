@@ -687,18 +687,17 @@ BOOST_AUTO_TEST_CASE(testSandbox2RouteDegradesToLandlockRungWithInjectedConfinem
     BOOST_REQUIRE(logged.find("\"sandbox2_established\":false") != std::string::npos);
     BOOST_TEST_REQUIRE(router.lastSpawnFailureReason().empty());
 
-    // The fallback is explained to the operator, and (s_UnprivilegedUsernsClone
-    // == "0") the explanation carries the sysctl remedy, not the
-    // container-runtime one. The message is logged at INFO (a supported,
-    // deliberate degradation, not a warning); that severity is covered by the
-    // CSandbox2Diagnostics message tests and verified end to end in the log,
-    // rather than re-asserted here - the router-emitted record does not survive
-    // this suite's severity-filtered capture reliably.
-    BOOST_REQUIRE(logged.find("Landlock filesystem confinement") != std::string::npos);
-    BOOST_REQUIRE(logged.find("kernel.unprivileged_userns_clone=1") != std::string::npos);
+    // landlockFallbackMessage() is INFO; if launchMsgPos is missing, this suite's
+    // severity-filtered capture dropped the per-launch line (not the self-check).
+    constexpr char const* LAUNCH_LANDLOCK_MSG{
+        "is being launched with Landlock filesystem confinement"};
     const std::size_t selfCheckPos{logged.find("Sandbox2 environment self-check")};
+    const std::size_t launchMsgPos{logged.find(LAUNCH_LANDLOCK_MSG)};
     BOOST_TEST_REQUIRE(selfCheckPos != std::string::npos);
-    BOOST_TEST_REQUIRE(selfCheckPos < logged.find("Landlock filesystem confinement"));
+    BOOST_TEST_REQUIRE(launchMsgPos != std::string::npos);
+    BOOST_TEST_REQUIRE(selfCheckPos < launchMsgPos);
+    BOOST_TEST_REQUIRE(logged.find("kernel.unprivileged_userns_clone=1", launchMsgPos) !=
+                       std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE(testLegacyRouteDoesNotLogSandboxEnvironmentSelfCheck) {
@@ -720,7 +719,6 @@ BOOST_AUTO_TEST_CASE(testLegacyRouteDoesNotLogSandboxEnvironmentSelfCheck) {
         BOOST_REQUIRE_EQUAL(true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
                                                PROCESS_PATH, args, childPid));
     })};
-    std::this_thread::sleep_for(std::chrono::seconds{1});
     std::remove(outputFile.c_str());
     BOOST_REQUIRE(logged.find("Sandbox2 environment self-check") == std::string::npos);
 }
