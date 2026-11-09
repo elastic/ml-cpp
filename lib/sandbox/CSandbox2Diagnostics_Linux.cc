@@ -398,7 +398,7 @@ std::string readProcSysValue(const char* path) {
 }
 
 bool pathHasNoexecFlag(const char* path) {
-    struct statfs mountInfo{};
+    struct statfs mountInfo {};
     if (::statfs(path, &mountInfo) != 0) {
         return false;
     }

@@ -146,8 +146,7 @@ static_assert(sizeof(CProcessSpawnerRouter) < sizeof(core::CDetachedProcessSpawn
 CProcessSpawnerRouter::CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
                                              const TStrVec& sandboxedProcessPaths,
                                              TConfinementFn confinementFn)
-    : m_LegacySpawner{permittedProcessPaths},
-      m_SandboxedProcessPaths{sandboxedProcessPaths},
+    : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths},
       m_ConfinementFn{confinementFn ? std::move(confinementFn) : TConfinementFn{[] {
           return sandbox::hostConfinement();
       }}},
@@ -300,8 +299,8 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
                  << "the in-process seccomp filter applies");
         spawned = m_LegacySpawner.spawn(processPath, args, childPid, childIpcRootPtr);
     } else if (sandboxEligible) {
-        // route == ERoute::E_Sandbox2, and processPath is configured as
-        // sandboxed.
+    // route == ERoute::E_Sandbox2, and processPath is configured as
+    // sandboxed.
 #ifdef SANDBOX2_AVAILABLE
         // Cached hostConfinement() only: decide the rung before construct/launch
         // so the log and route cannot disagree. Without user namespaces,
