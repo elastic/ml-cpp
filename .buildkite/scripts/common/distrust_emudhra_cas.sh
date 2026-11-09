@@ -16,7 +16,8 @@
 # the images carry fixed ca-certificates packages.
 #
 # Idempotent and best-effort (never fails the job).  Needs root or passwordless
-# sudo; does nothing except on Linux and macOS.  Verify with check_ca_trust.sh.
+# sudo; does nothing except on Linux (the macOS images have the roots distrusted
+# in the image).  Verify with check_ca_trust.sh.
 
 set -u
 
@@ -27,8 +28,8 @@ ROOT_SHA256=(d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4
 ROOT_FILES=("Comodo_AAA_Services_root.crt" "emSign_ECC_Root_CA_-_G3.crt")
 
 case "$(uname -s)" in
-    Linux|Darwin) ;;
-    *) echo "distrust_emudhra_cas: not Linux or macOS, nothing to do"; exit 0 ;;
+    Linux) ;;
+    *) echo "distrust_emudhra_cas: not Linux, nothing to do"; exit 0 ;;
 esac
 
 if [ "$(id -u)" -eq 0 ]; then
@@ -40,78 +41,7 @@ else
     exit 0
 fi
 
-if [ "$(uname -s)" = Darwin ]; then
-    # Deny the roots in the admin trust settings (the Keychain).  A headless CI
-    # session can't answer the authorization prompt, even as root, so on that
-    # error temporarily allow the trust-settings right, retry, then restore it.
-    TRUST_RIGHT=com.apple.trust-settings.admin
-    right_backup=""
-    # Restore the right on any exit or signal, so it can't be left open.
-    restore_right() {
-        [ -n "$right_backup" ] || return 0
-        if [ -s "$right_backup" ]; then
-            $SUDO security authorizationdb write "$TRUST_RIGHT" < "$right_backup" >/dev/null 2>&1
-        fi
-        rm -f "$right_backup"
-        right_backup=""
-    }
-    trap restore_right EXIT
-    trap 'exit 130' INT
-    trap 'exit 143' TERM
-    deny_trust() {
-        $SUDO security add-trusted-cert -d -r deny -k /Library/Keychains/System.keychain "$1" 2>&1
-    }
-    for name in "AAA Certificate Services" "emSign ECC Root CA - G3"; do
-        pem=$(mktemp -t distrust_emudhra)
-        security find-certificate -a -c "$name" -p /System/Library/Keychains/SystemRootCertificates.keychain > "$pem" 2>/dev/null
-        if [ -s "$pem" ]; then
-            out=$(deny_trust "$pem"); rc=$?
-            if [ $rc -ne 0 ] && echo "$out" | grep -q "no user interaction"; then
-                if [ -z "$right_backup" ]; then
-                    right_backup=$(mktemp -t distrust_right)
-                    $SUDO security authorizationdb read "$TRUST_RIGHT" > "$right_backup" 2>/dev/null
-                    $SUDO security authorizationdb write "$TRUST_RIGHT" allow >/dev/null 2>&1
-                fi
-                out=$(deny_trust "$pem"); rc=$?
-            fi
-            if [ $rc -eq 0 ]; then
-                echo "distrust_emudhra_cas: macOS denied trust for '$name'"
-            else
-                echo "distrust_emudhra_cas: WARNING: could not deny trust for '$name': $out"
-            fi
-        else
-            echo "distrust_emudhra_cas: '$name' not in the system roots, skipping"
-        fi
-        rm -f "$pem"
-    done
-    restore_right
-
-    # The built-in /usr/bin/curl reads /etc/ssl/cert.pem, not the Keychain, so
-    # drop the roots from it too (it is a series of "=== <subject>" blocks).
-    BUNDLE=/etc/ssl/cert.pem
-    PATTERN='^=== .*CN=(AAA Certificate Services|emSign ECC Root CA - G3)$'
-    if [ -f "$BUNDLE" ] && grep -Eq "$PATTERN" "$BUNDLE"; then
-        filtered=$(mktemp -t distrust_bundle)
-        awk -v pat="$PATTERN" '
-            $0 ~ pat { skip = 1 }
-            skip { if ($0 ~ /^-----END CERTIFICATE-----$/) skip = 0; next }
-            { print }' "$BUNDLE" > "$filtered"
-        before=$(grep -c "BEGIN CERTIFICATE" "$BUNDLE")
-        after=$(grep -c "BEGIN CERTIFICATE" "$filtered")
-        # Only replace the bundle if just the expected certificates were removed.
-        if [ "$after" -gt 0 ] && [ "$after" -lt "$before" ] && [ $((before - after)) -le 2 ]; then
-            [ -e "$BUNDLE.pre-emudhra" ] || $SUDO cp -p "$BUNDLE" "$BUNDLE.pre-emudhra"
-            if $SUDO sh -c "cat '$filtered' > '$BUNDLE'"; then
-                echo "distrust_emudhra_cas: removed $((before - after)) root(s) from $BUNDLE"
-            else
-                echo "distrust_emudhra_cas: WARNING: could not update $BUNDLE"
-            fi
-        else
-            echo "distrust_emudhra_cas: WARNING: unexpected result filtering $BUNDLE ($before -> $after certificates), left unchanged"
-        fi
-        rm -f "$filtered"
-    fi
-elif [ -d /etc/pki/ca-trust/source ]; then
+if [ -d /etc/pki/ca-trust/source ]; then
     # RHEL family: blocklist the roots (directory is "blacklist" up to RHEL 8).
     BUNDLE=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
     if [ -d /etc/pki/ca-trust/source/blocklist ] || [ -e /usr/share/doc/ca-certificates/blocklist ]; then

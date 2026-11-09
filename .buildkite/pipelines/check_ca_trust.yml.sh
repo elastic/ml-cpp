@@ -11,9 +11,10 @@
 # Runs check_ca_trust.sh in each CI Docker image, on the aarch64 build host and
 # on the macOS agent, and check_ca_trust.ps1 on the Windows agent, to check
 # whether they trust the compromised eMudhra CAs (InfoSec incident "Intrepid
-# Falcon").  The steps run after the post-checkout mitigation, so PASS means
-# it took effect.  Exit 1 (a store still trusts them) fails the build; exit 2
-# (inconclusive, e.g. the test site is unreachable) only warns.
+# Falcon").  The Linux host steps run after the post-checkout mitigation, so PASS
+# means it took effect; the macOS and Windows images are fixed in the image.
+# Exit 1 (a store still trusts them) fails the build; exit 2 (inconclusive, e.g.
+# the test site is unreachable) only warns.
 
 CHECK=".buildkite/scripts/steps/check_ca_trust.sh"
 
@@ -83,7 +84,9 @@ ${SOFT_FAIL_INCONCLUSIVE}
 ${AARCH64_AGENTS}
 EOL
 
-# macOS builds run natively on Orka VMs (same agent as build_macos.json.py).
+# macOS builds run natively on Orka VMs (same agent as build_macos.json.py).  The
+# image (-005) has the roots distrusted and the post-checkout script does nothing
+# on macOS, so this reports the image as shipped.
 cat <<EOL
   - label: "CA trust check: macOS aarch64 agent"
     key: "check_ca_trust_macos_aarch64"
