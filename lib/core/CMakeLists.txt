@@ -13,8 +13,13 @@ project("ML Core")
 
 set(ML_LINK_LIBRARIES
   ${ZLIB_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
   ${Boost_LIBRARIES})
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  # CCrashHandler_Linux.cc calls dladdr(), which lives in libdl on the glibc
+  # versions we build against. This used to be satisfied transitively by libxml2.
+  list(APPEND ML_LINK_LIBRARIES ${CMAKE_DL_LIBS})
+endif()
 
 ml_add_library(MlCore SHARED
   CBase64Filter.cc

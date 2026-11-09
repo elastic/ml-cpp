@@ -162,7 +162,7 @@ spec:
         build_branches: true
         build_pull_request_forks: false
         cancel_deleted_branch_builds: true
-        filter_condition: build.branch == "main" || build.branch == "9.5" || build.branch == "9.4" || build.branch == "8.19"
+        filter_condition: build.branch == "main" || build.branch == "9.6" || build.branch == "9.5" || build.branch == "9.4" || build.branch == "8.19"
         filter_enabled: true
         publish_blocked_as_pending: true
         publish_commit_status: false
@@ -182,6 +182,10 @@ spec:
           branch: '9.5'
           cronline: 30 05 * * *
           message: Daily SNAPSHOT build for 9.5
+        Daily 9.6:
+          branch: '9.6'
+          cronline: 30 06 * * *
+          message: Daily SNAPSHOT build for 9.6
         Daily main:
           branch: main
           cronline: 30 00 * * *

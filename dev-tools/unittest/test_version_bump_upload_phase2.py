@@ -61,6 +61,7 @@ def test_minor_workflow_uploads_phase2_once(fake_buildkite_agent: tuple[Path, Pa
     env = os.environ.copy()
     env["PATH"] = f"{bin_dir}:{env.get('PATH', '')}"
     env["WORKFLOW"] = "minor"
+    env["NEW_VERSION"] = "9.6.0"
     env.pop("DRY_RUN", None)
 
     proc = subprocess.run(
@@ -83,6 +84,7 @@ def test_patch_workflow_uploads_patch_phase2_once(fake_buildkite_agent: tuple[Pa
     env = os.environ.copy()
     env["PATH"] = f"{bin_dir}:{env.get('PATH', '')}"
     env["WORKFLOW"] = "patch"
+    env["NEW_VERSION"] = "9.5.4"
     env.pop("DRY_RUN", None)
 
     proc = subprocess.run(
