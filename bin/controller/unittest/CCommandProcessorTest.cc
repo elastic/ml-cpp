@@ -520,6 +520,7 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
                   std::string::npos);
     BOOST_REQUIRE(dormantLogged.find("\"legacy_reason\":\"kill_switch\"") ==
                   std::string::npos);
+    BOOST_REQUIRE(dormantLogged.find("Sandbox2 environment self-check") == std::string::npos);
 
     // (b) Validated --disableSandbox token -> kill_switch.
     std::remove(TARGET_FILE.c_str());
@@ -540,6 +541,8 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
     BOOST_REQUIRE(killSwitchLogged.find("\"legacy_reason\":\"kill_switch\"") !=
                   std::string::npos);
     BOOST_REQUIRE(killSwitchLogged.find("\"legacy_reason\":\"no_token_default\"") ==
+                  std::string::npos);
+    BOOST_REQUIRE(killSwitchLogged.find("Sandbox2 environment self-check") ==
                   std::string::npos);
 
     // (c) Validated --requireSandbox token -> route "sandbox2", no
