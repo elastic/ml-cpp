@@ -127,7 +127,8 @@ struct SHostConfinement {
 EConfinementLevel decideConfinement(ESandbox2Capability sandbox2, int landlockAbi);
 
 //! Cached host confinement (one probe per process). Used for routing and the
-//! first --requireSandbox self-check log line.
+//! first --requireSandbox self-check log line. The first call must run before
+//! any thread in this process uses waitpid(-1, ...).
 const SHostConfinement& hostConfinement();
 
 //! Human-readable form of a landlockAbiVersion() result.

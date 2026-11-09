@@ -86,9 +86,9 @@ public:
     };
 
     //! Supplies this host's confinement options. Production code leaves it
-    //! empty, which means sandbox::hostConfinement() - the cached verdict
-    //! logged on the first --requireSandbox launch. Tests inject a fixed
-    //! value so every rung of the ladder can be exercised on any machine.
+    //! empty, which means sandbox::hostConfinement() - probed at controller
+    //! start, logged on the first --requireSandbox launch. Tests inject a
+    //! fixed value so every rung of the ladder can be exercised on any machine.
     using TConfinementFn = std::function<sandbox::SHostConfinement()>;
 
     CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,

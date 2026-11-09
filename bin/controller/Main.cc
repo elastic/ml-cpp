@@ -51,6 +51,8 @@
 #include <core/CStringUtils.h>
 #include <core/CThread.h>
 
+#include <sandbox/CSandbox2Diagnostics.h>
+
 #include <ver/CBuildInfo.h>
 
 #include "CBlockingCallCancellingStreamMonitor.h"
@@ -156,6 +158,11 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
+
+    // Probe before CCommandProcessor starts the legacy spawner's tracker
+    // thread: its waitpid(-1) could collect the probe child and cache a
+    // false E_ProbeFailed for the life of the controller.
+    ml::sandbox::hostConfinement();
 
     // Harden against same-UID /proc/<pid>/mem writes before accepting commands.
     if (makeProcessNonDumpable() == false) {
