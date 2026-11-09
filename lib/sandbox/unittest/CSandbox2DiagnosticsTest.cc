@@ -74,9 +74,9 @@ BOOST_AUTO_TEST_CASE(testProbeReportsUnsupportedWithoutSandbox2) {
 // platform without a host that actually has (or lacks) either capability.
 
 BOOST_AUTO_TEST_CASE(testDecideConfinementLadder) {
+    using ml::sandbox::decideConfinement;
     using ml::sandbox::EConfinementLevel;
     using ml::sandbox::ESandbox2Capability;
-    using ml::sandbox::decideConfinement;
 
     struct SCase {
         ESandbox2Capability s_Sandbox2;
@@ -285,15 +285,15 @@ BOOST_AUTO_TEST_CASE(testProbeLeavesTheCallersNamespacesUntouched) {
     // If any of that leaked into this process the controller would be
     // running in a namespace it never asked for, so pin the caller's own
     // user/mount namespace identity across the call.
-    struct stat userNsBefore {};
-    struct stat mountNsBefore {};
+    struct stat userNsBefore{};
+    struct stat mountNsBefore{};
     BOOST_TEST_REQUIRE(::stat("/proc/self/ns/user", &userNsBefore) == 0);
     BOOST_TEST_REQUIRE(::stat("/proc/self/ns/mnt", &mountNsBefore) == 0);
 
     ml::sandbox::probeSandbox2Capability();
 
-    struct stat userNsAfter {};
-    struct stat mountNsAfter {};
+    struct stat userNsAfter{};
+    struct stat mountNsAfter{};
     BOOST_TEST_REQUIRE(::stat("/proc/self/ns/user", &userNsAfter) == 0);
     BOOST_TEST_REQUIRE(::stat("/proc/self/ns/mnt", &mountNsAfter) == 0);
 

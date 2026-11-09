@@ -689,15 +689,14 @@ BOOST_AUTO_TEST_CASE(testSandbox2RouteDegradesToLandlockRungWithInjectedConfinem
 
     // landlockFallbackMessage() is INFO; if launchMsgPos is missing, this suite's
     // severity-filtered capture dropped the per-launch line (not the self-check).
-    constexpr char const* LAUNCH_LANDLOCK_MSG{
-        "is being launched with Landlock filesystem confinement"};
+    constexpr char const* LAUNCH_LANDLOCK_MSG{"is being launched with Landlock filesystem confinement"};
     const std::size_t selfCheckPos{logged.find("Sandbox2 environment self-check")};
     const std::size_t launchMsgPos{logged.find(LAUNCH_LANDLOCK_MSG)};
     BOOST_TEST_REQUIRE(selfCheckPos != std::string::npos);
     BOOST_TEST_REQUIRE(launchMsgPos != std::string::npos);
     BOOST_TEST_REQUIRE(selfCheckPos < launchMsgPos);
-    BOOST_TEST_REQUIRE(logged.find("kernel.unprivileged_userns_clone=1", launchMsgPos) !=
-                       std::string::npos);
+    BOOST_TEST_REQUIRE(logged.find("kernel.unprivileged_userns_clone=1",
+                                   launchMsgPos) != std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE(testLegacyRouteDoesNotLogSandboxEnvironmentSelfCheck) {
