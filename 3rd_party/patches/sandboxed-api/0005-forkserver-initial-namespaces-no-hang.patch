@@ -1,0 +1,42 @@
+diff --git a/sandboxed_api/sandbox2/forkserver.cc b/sandboxed_api/sandbox2/forkserver.cc
+index 7e58f336..375c0399 100644
+--- a/sandboxed_api/sandbox2/forkserver.cc
++++ b/sandboxed_api/sandbox2/forkserver.cc
+@@ -17,6 +17,7 @@
+ #include "sandboxed_api/sandbox2/forkserver.h"
+ 
+ #include <fcntl.h>
++#include <poll.h>
+ #include <linux/filter.h>
+ #include <linux/seccomp.h>
+ #include <sched.h>
+@@ -621,6 +622,29 @@ void ForkServer::CreateInitialNamespaces() {
+     util::DumpCoverageData();
+     _exit(0);
+   }
++  // The child reports success through an eventfd, which has no end-of-file:
++  // if the child dies first (e.g. a SAPI_RAW_PCHECK in
++  // InitializeInitialNamespaces() because the host denies writing uid_map), a
++  // blocking read() would wait forever and wedge every client of this fork
++  // server. Wait in bounded steps and give up once the child is gone.
++  for (;;) {
++    pollfd create_pfd{create_efd.get(), POLLIN, 0};
++    int ready = TEMP_FAILURE_RETRY(poll(&create_pfd, 1, 100));
++    SAPI_RAW_PCHECK(ready != -1, "waiting for initial namespaces creation");
++    if (ready == 1) {
++      break;
++    }
++    // SA_NOCLDWAIT is set, so a dead child is reaped automatically and
++    // waitpid() then fails with ECHILD.
++    int status = 0;
++    pid_t waited = TEMP_FAILURE_RETRY(waitpid(pid, &status, WNOHANG));
++    if (waited == pid || (waited == -1 && errno == ECHILD)) {
++      SAPI_RAW_LOG(FATAL,
++                   "initial namespaces process exited before creating the "
++                   "namespaces; this host does not permit the user and mount "
++                   "namespaces sandbox2 needs");
++    }
++  }
+   SAPI_RAW_PCHECK(TEMP_FAILURE_RETRY(read(create_efd.get(), &value,
+                                           sizeof(value))) == sizeof(value),
+                   "synchronizing initial namespaces creation");
