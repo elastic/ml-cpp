@@ -112,16 +112,14 @@ ${AARCH64_AGENTS}
 EOL
 
 # macOS builds run natively on Orka VMs (same agent as build_macos.json.py).  The
-# macOS 12 image (-004) has the roots distrusted in the image, so this reports it
-# as-is.
+# macOS 12 image (-004) has the roots distrusted and the post-checkout script does
+# nothing on macOS, so this reports the image as shipped.
 cat <<EOL
   - label: "CA trust check: macOS aarch64 agent"
     key: "check_ca_trust_macos_aarch64"
     command: "${CHECK}"
 ${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
-    env:
-      EMUDHRA_SKIP_MITIGATION: "true"
     agents:
       provider: "orka"
       image: "ml-macos-12-arm-004.orkasi"
