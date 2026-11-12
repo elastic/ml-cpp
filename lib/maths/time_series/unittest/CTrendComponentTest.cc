@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -30,6 +32,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <sstream>
 
 namespace {
 BOOST_AUTO_TEST_SUITE(CTrendComponentTest)
@@ -509,9 +512,10 @@ BOOST_AUTO_TEST_CASE(testForecastPreservesExactLinearTrendWithZeroUncertainty) {
     component.shiftOrigin(time);
 
     std::ostringstream state;
-    core::CJsonStatePersistInserter::persist(
-        state, std::bind_front(&maths::time_series::CTrendComponent::acceptPersistInserter,
-                               &component));
+    {
+        core::CJsonStatePersistInserter inserter{state};
+        component.acceptPersistInserter(inserter);
+    }
     std::string zeroVarianceState{state.str()};
     std::size_t position{0};
     for (std::size_t i = 0; i < 8; ++i) {
