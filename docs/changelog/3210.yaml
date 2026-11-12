@@ -1,5 +1,6 @@
 area: Machine Learning
-issues: []
+issues:
+ - 2740
 pr: 3210
 summary: Learn a linear trend at long bucket spans
 type: bug
