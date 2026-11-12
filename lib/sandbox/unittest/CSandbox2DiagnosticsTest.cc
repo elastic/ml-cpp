@@ -194,6 +194,36 @@ BOOST_AUTO_TEST_CASE(testNoConfinementMessageExplainsAndTellsTheOperatorWhatToDo
     BOOST_TEST_REQUIRE(blockedMessage.find("blocked") != std::string::npos);
 }
 
+BOOST_AUTO_TEST_CASE(testSelfCheckConclusionDescribesEachConfinementLevel) {
+    ml::sandbox::SHostConfinement sandbox2Host;
+    sandbox2Host.s_Level = ml::sandbox::EConfinementLevel::E_Sandbox2;
+    sandbox2Host.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_Available;
+    const std::string sandbox2Conclusion{ml::sandbox::selfCheckConclusion(sandbox2Host)};
+    BOOST_TEST_REQUIRE(sandbox2Conclusion.find("full Sandbox2 isolation") !=
+                       std::string::npos);
+
+    ml::sandbox::SHostConfinement landlockHost;
+    landlockHost.s_Level = ml::sandbox::EConfinementLevel::E_Landlock;
+    landlockHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    landlockHost.s_LandlockAbi = 1;
+    landlockHost.s_UnprivilegedUsernsClone = "0";
+    const std::string landlockConclusion{ml::sandbox::selfCheckConclusion(landlockHost)};
+    BOOST_TEST_REQUIRE(landlockConclusion.find("Landlock filesystem confinement") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(landlockConclusion.find("kernel.unprivileged_userns_clone=1") !=
+                       std::string::npos);
+
+    ml::sandbox::SHostConfinement unavailableHost;
+    unavailableHost.s_Level = ml::sandbox::EConfinementLevel::E_Unavailable;
+    unavailableHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    unavailableHost.s_LandlockAbi = 0;
+    const std::string unavailableConclusion{ml::sandbox::selfCheckConclusion(unavailableHost)};
+    BOOST_TEST_REQUIRE(unavailableConclusion.find("launches are refused") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(unavailableConclusion.find("CONFIG_SECURITY_LANDLOCK") !=
+                       std::string::npos);
+}
+
 BOOST_AUTO_TEST_CASE(testLandlockFallbackMessageNamesThePathAndDoesNotOverclaim) {
     ml::sandbox::SHostConfinement host;
     host.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
