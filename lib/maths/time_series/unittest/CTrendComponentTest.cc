@@ -564,7 +564,7 @@ BOOST_AUTO_TEST_CASE(testForecastIsAffineInvariant) {
 
 BOOST_AUTO_TEST_CASE(testForecastLinearTrendAtDailyBucketLength) {
     // Regression for elastic/ml-cpp#2740: a clean linear ramp sampled once per
-    // day must not be forecast in the opposite direction.
+    // day must be forecast with approximately the same slope as the ramp.
 
     const core_t::TTime bucketLength{core::constants::DAY};
     const double slope{17.0};
@@ -599,7 +599,7 @@ BOOST_AUTO_TEST_CASE(testForecastLinearTrendAtDailyBucketLength) {
     double forecastSlope{(forecast.back()[1] - forecast.front()[1]) /
                          static_cast<double>(forecast.size() - 1)};
     LOG_DEBUG(<< "actual slope = " << slope << ", forecast slope = " << forecastSlope);
-    BOOST_TEST_REQUIRE(forecastSlope > 0.0);
+    BOOST_TEST_REQUIRE(std::fabs(forecastSlope - slope) < 0.2 * slope);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
