@@ -107,12 +107,6 @@ else()
   set(C10_LIB   "${ML_BASE_PATH}/lib/libc10${ML_LIBEXT}")
 endif()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(LIBXML2_LIBRARIES "-lxml2")
-else()
-  set(LIBXML2_LIBRARIES "${ML_BASE_PATH}/lib/libxml2${ML_LIBEXT}")
-endif()
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(ZLIB_LIBRARIES "${ML_BASE_PATH}/lib/zlib${ML_LIBEXT}")
 else()
@@ -128,9 +122,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_CROSSCOMPILING)
     list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${SYSROOT}/usr/include/c++/v1)
   endif()
-  list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${SYSROOT}/usr/include ${SYSROOT}/usr/include/libxml2 ${SYSROOT}/usr/local/include)
-else ()
-  list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${ML_BASE_PATH}/include/libxml2)
+  list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${SYSROOT}/usr/include ${SYSROOT}/usr/local/include)
 endif()
 
 list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES

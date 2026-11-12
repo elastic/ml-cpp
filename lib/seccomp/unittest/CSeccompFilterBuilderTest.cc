@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <set>
+#include <vector>
 
 #ifdef __linux__
 
@@ -33,6 +34,8 @@
 #include <linux/seccomp.h>
 
 #endif // __linux__
+
+static_assert(ml::seccomp::TERMINATE_ON_DEGRADED_SECCOMP_FAILURE);
 
 BOOST_AUTO_TEST_SUITE(CSeccompFilterBuilderTest)
 
@@ -223,6 +226,28 @@ BOOST_AUTO_TEST_CASE(testCarryForwardSyscallsPresent) {
 #endif
 }
 
+BOOST_AUTO_TEST_CASE(testSandbox2ExplicitSyscallsCarriedForwardFromPr2873) {
+    // The clean rebuild's Sandbox2 policy builder originally granted only
+    // legacyBpfAllowedSyscalls(), which is not sufficient: Sandbox2's
+    // namespace/threading setup exercises syscalls (scheduling, epoll, pipes,
+    // directory management) the legacy in-process filter never needed. PR
+    // #2873's enhancement/sandbox2 branch already had a dedicated
+    // sandbox2ExplicitSyscalls() list for exactly this; this regression test
+    // keeps a future rewrite from dropping it again the same way.
+    // sandbox2ExplicitSyscalls() returns by value, so it must be called once:
+    // taking begin() and end() from two separate calls pairs iterators from
+    // two different temporaries, which is undefined behaviour that passes or
+    // crashes depending on heap layout.
+    const std::vector<int> explicitSyscalls{ml::seccomp::sandbox2ExplicitSyscalls()};
+    const std::set<int> explicitGrants{explicitSyscalls.begin(),
+                                       explicitSyscalls.end()};
+
+    BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_getaffinity) == 1);
+    BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_setaffinity) == 1);
+    BOOST_TEST_REQUIRE(explicitGrants.count(__NR_epoll_pwait) == 1);
+    BOOST_TEST_REQUIRE(explicitGrants.count(__NR_pipe2) == 1);
+}
+
 #endif // __linux__
 
 BOOST_AUTO_TEST_CASE(testDegradedModeAttestationMarker) {
@@ -261,10 +286,9 @@ BOOST_AUTO_TEST_CASE(testDecideDegradedModeActionFaultInjection) {
                             ESystemCallFilterInstallOutcome::E_Installed, true)));
 
     // Every fault-injected failure class - capability probe failure,
-    // PR_SET_NO_NEW_PRIVS, and filter installation - with the internal
-    // switch off (today's production default), every call site continues;
-    // with it on (the behaviour a later change activates), every one
-    // terminates.
+    // PR_SET_NO_NEW_PRIVS, and filter installation - with terminateOnFailure
+    // false every call site continues; with it true (production default via
+    // TERMINATE_ON_DEGRADED_SECCOMP_FAILURE), every one terminates.
     const ESystemCallFilterInstallOutcome failureModes[]{
         ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
         ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed,
@@ -275,6 +299,154 @@ BOOST_AUTO_TEST_CASE(testDecideDegradedModeActionFaultInjection) {
                             static_cast<int>(decideDegradedModeAction(outcome, false)));
         BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_TerminateBeforeIo),
                             static_cast<int>(decideDegradedModeAction(outcome, true)));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testSandbox2LaunchedChildRecognisesOnlyExactlyOne) {
+    using ml::seccomp::sandbox2LaunchedChild;
+
+    // Exactly "1" - the value CSandboxedProcessSpawner_Linux.cc sets on a
+    // sandboxee - and nothing else.
+    BOOST_REQUIRE_EQUAL(true, sandbox2LaunchedChild("1"));
+
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild(nullptr));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild(""));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild("0"));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild("true"));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild("10"));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild(" 1"));
+}
+
+BOOST_AUTO_TEST_CASE(testInProcessFilterSkippedEntirelyForSandbox2LaunchedChild) {
+    using ml::seccomp::EDegradedModeAction;
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::applyInProcessSeccompFilter;
+
+    // ML_SANDBOXED=1: the installer must never be invoked, no degraded-mode
+    // termination may be derived and no attestation marker may be produced -
+    // and that must hold for every outcome an installation attempt could
+    // have returned, including the failure classes that would otherwise
+    // terminate the launch when TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is true.
+    const ESystemCallFilterInstallOutcome allOutcomes[]{
+        ESystemCallFilterInstallOutcome::E_Installed,
+        ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
+        ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed,
+        ESystemCallFilterInstallOutcome::E_FilterInstallFailed};
+
+    for (const auto wouldHaveReturned : allOutcomes) {
+        bool installerCalled{false};
+        const auto result = applyInProcessSeccompFilter(
+            true, true, [&installerCalled, wouldHaveReturned] {
+                installerCalled = true;
+                return wouldHaveReturned;
+            });
+
+        BOOST_REQUIRE_EQUAL(false, installerCalled);
+        BOOST_REQUIRE_EQUAL(false, result.s_Attempted);
+        BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_ContinueDespiteFailure),
+                            static_cast<int>(result.s_Action));
+        BOOST_TEST_REQUIRE(result.s_AttestationMarker.empty());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testInProcessFilterUnchangedOnLegacyRoute) {
+    using ml::seccomp::EDegradedModeAction;
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::applyInProcessSeccompFilter;
+
+    // ML_SANDBOXED unset/not "1": behaviour is exactly the pre-existing
+    // install + decide + attest sequence, i.e. the fault-injection coverage
+    // above (testDecideDegradedModeActionFaultInjection) still describes
+    // this path.
+    bool installerCalled{false};
+    const auto installed = applyInProcessSeccompFilter(false, true, [&installerCalled] {
+        installerCalled = true;
+        return ESystemCallFilterInstallOutcome::E_Installed;
+    });
+    BOOST_REQUIRE_EQUAL(true, installerCalled);
+    BOOST_REQUIRE_EQUAL(true, installed.s_Attempted);
+    BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_ContinueDespiteFailure),
+                        static_cast<int>(installed.s_Action));
+    BOOST_REQUIRE_EQUAL(std::string("{\"ml_sandbox2_route\":\"legacy\",\"event\":\"seccomp_installed\"}"),
+                        installed.s_AttestationMarker);
+
+    const ESystemCallFilterInstallOutcome failureModes[]{
+        ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
+        ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed,
+        ESystemCallFilterInstallOutcome::E_FilterInstallFailed};
+
+    for (const auto outcome : failureModes) {
+        const auto failed = applyInProcessSeccompFilter(
+            false, true, [outcome] { return outcome; });
+        BOOST_REQUIRE_EQUAL(true, failed.s_Attempted);
+        BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_TerminateBeforeIo),
+                            static_cast<int>(failed.s_Action));
+        // A failed install attests nothing, exactly as before.
+        BOOST_TEST_REQUIRE(failed.s_AttestationMarker.empty());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testDegradedModeAttestationMarkerRouteLandlock) {
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::degradedModeAttestationMarker;
+
+    // route must be threaded through verbatim - a controller/Elasticsearch
+    // observer needs the marker's ml_sandbox2_route to agree with the
+    // sandbox2_launch signal's own "route" field for the same launch.
+    BOOST_REQUIRE_EQUAL(
+        std::string("{\"ml_sandbox2_route\":\"landlock\",\"event\":\"seccomp_installed\"}"),
+        degradedModeAttestationMarker(ESystemCallFilterInstallOutcome::E_Installed, "landlock"));
+
+    // Default parameter is unchanged: omitting route still reports "legacy".
+    BOOST_REQUIRE_EQUAL(
+        std::string("{\"ml_sandbox2_route\":\"legacy\",\"event\":\"seccomp_installed\"}"),
+        degradedModeAttestationMarker(ESystemCallFilterInstallOutcome::E_Installed));
+
+    // A failed install attests nothing, regardless of which route asked for
+    // the marker.
+    BOOST_TEST_REQUIRE(degradedModeAttestationMarker(
+                           ESystemCallFilterInstallOutcome::E_MechanismUnavailable, "landlock")
+                           .empty());
+    BOOST_TEST_REQUIRE(degradedModeAttestationMarker(
+                           ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed, "landlock")
+                           .empty());
+    BOOST_TEST_REQUIRE(degradedModeAttestationMarker(
+                           ESystemCallFilterInstallOutcome::E_FilterInstallFailed, "landlock")
+                           .empty());
+}
+
+BOOST_AUTO_TEST_CASE(testApplyInProcessSeccompFilterPassesRouteThrough) {
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::applyInProcessSeccompFilter;
+
+    // Not Sandbox2-launched (legacy/Landlock route child), successful
+    // install, route == "landlock": the resulting marker must carry that
+    // route, not the default "legacy".
+    const auto result = applyInProcessSeccompFilter(
+        false, true, [] { return ESystemCallFilterInstallOutcome::E_Installed; }, "landlock");
+
+    BOOST_REQUIRE_EQUAL(true, result.s_Attempted);
+    BOOST_REQUIRE_EQUAL(std::string("{\"ml_sandbox2_route\":\"landlock\",\"event\":\"seccomp_installed\"}"),
+                        result.s_AttestationMarker);
+}
+
+BOOST_AUTO_TEST_CASE(testApplyInProcessSeccompFilterFailedInstallEmptyMarkerRegardlessOfRoute) {
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::applyInProcessSeccompFilter;
+
+    const ESystemCallFilterInstallOutcome failureModes[]{
+        ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
+        ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed,
+        ESystemCallFilterInstallOutcome::E_FilterInstallFailed};
+    const char* const routes[]{"legacy", "landlock"};
+
+    for (const auto outcome : failureModes) {
+        for (const char* route : routes) {
+            const auto result = applyInProcessSeccompFilter(
+                false, true, [outcome] { return outcome; }, route);
+            BOOST_REQUIRE_EQUAL(true, result.s_Attempted);
+            BOOST_TEST_REQUIRE(result.s_AttestationMarker.empty());
+        }
     }
 }
 

@@ -13,13 +13,13 @@ project("ML Seccomp unit tests")
 
 set (SRCS
   Main.cc
+  CLandlockFilesystemPolicyTest.cc
   CSeccompFilterBuilderTest.cc
   CSystemCallFilterTest.cc
   )
 
 set(ML_LINK_LIBRARIES
   ${Boost_LIBRARIES_WITH_UNIT_TEST}
-  ${LIBXML2_LIBRARIES}
   MlCore
   MlSeccomp
   MlTest

@@ -18,6 +18,7 @@
 #include <core/CStringUtils.h>
 #include <core/Concurrency.h>
 
+#include <seccomp/CLandlockFilesystemPolicy.h>
 #include <seccomp/CSystemCallFilter.h>
 
 #include <ver/CBuildInfo.h>
@@ -106,6 +107,38 @@ void verifySafeModelBeforeLoad(const char* modelData, std::size_t modelSize) {
     }
     std::string names = ml::core::CStringUtils::join(hooks, ", ");
     HANDLE_FATAL(<< "Model archive contains custom state hooks: " << names);
+}
+}
+
+namespace {
+//! Apply the Landlock ruleset for the Landlock rung. Returns false, after
+//! logging why, if this process must not go on to handle untrusted input.
+bool confineFilesystem(const std::string& logPipePath) {
+    const std::string ipcDirectory{ml::seccomp::perChildIpcDirectory(logPipePath)};
+    if (ipcDirectory.empty()) {
+        // The grant includes unlinking pipes; in the legacy flat $TMPDIR that
+        // would let this sandboxee delete another deployment's pipes. The
+        // controller only adds --restrictFilesystem alongside the per-child
+        // layout, so this is a caller bug - fail closed.
+        LOG_FATAL(<< "--restrictFilesystem requires the per-child IPC directory layout "
+                     "($TMPDIR/ml-child-ipc/<deployment-id>/), but the log pipe is '"
+                  << logPipePath << "'; refusing to process untrusted model input");
+        return false;
+    }
+    const ml::seccomp::ELandlockOutcome outcome{ml::seccomp::applyLandlockFilesystemPolicy(
+        ml::seccomp::pytorchInferenceLandlockPaths(ipcDirectory))};
+    if (outcome != ml::seccomp::ELandlockOutcome::E_Applied) {
+        // Should not happen: the controller only chooses this rung after
+        // confirming Landlock is available. Fail closed anyway - running on
+        // would serve untrusted model code with no filesystem boundary while
+        // the controller's sandbox2_launch signal says one is in force.
+        LOG_FATAL(<< "Landlock filesystem confinement " << ml::seccomp::describe(outcome)
+                  << "; refusing to process untrusted model input. If this host cannot "
+                     "support Landlock, deactivate the xpack.ml.trained_models.sandbox_enabled "
+                     "setting to run models without a sandbox");
+        return false;
+    }
+    return true;
 }
 }
 
@@ -238,13 +271,14 @@ int main(int argc, char** argv) {
     bool lowPriority{false};
     bool useImmediateExecutor{false};
     bool skipModelValidation{false};
+    bool restrictFilesystem{false};
 
     if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, logFileName, logProperties, numThreadsPerAllocation,
-            numAllocations, cacheMemorylimitBytes, validElasticLicenseKeyConfirmed,
-            lowPriority, useImmediateExecutor, skipModelValidation) == false) {
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            logFileName, logProperties, numThreadsPerAllocation, numAllocations,
+            cacheMemorylimitBytes, validElasticLicenseKeyConfirmed, lowPriority,
+            useImmediateExecutor, skipModelValidation, restrictFilesystem) == false) {
         return EXIT_FAILURE;
     }
 
@@ -307,31 +341,55 @@ int main(int argc, char** argv) {
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
 
-    // Internal switch, not an operator setting: it stays false until the
-    // controller can route around Sandbox2 explicitly and guarantee that a
-    // degraded-mode (no-Sandbox2) launch was a deliberate operator choice
-    // rather than the only option this process has. Flipping it on today
-    // would terminate every launch on a host lacking seccomp BPF, with no
-    // operator fallback to select instead.
-    constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{false};
+    // Filesystem confinement on the Landlock rung: the controller adds
+    // --restrictFilesystem when Elasticsearch asked for a sandbox but this
+    // host cannot run Sandbox2 (see CProcessSpawnerRouter). Ordering is
+    // load-bearing, and deliberate:
+    //  - after the logger is reconfigured, so a failure here is visible;
+    //  - BEFORE the in-process seccomp filter below, because that filter's
+    //    allowlist does not permit the Landlock syscalls - installing it
+    //    first makes landlock_create_ruleset() fail with EACCES;
+    //  - before any model bytes are read, because the ruleset is
+    //    irreversible and must already be in force when untrusted
+    //    TorchScript (including __setstate__) is deserialized.
+    if (restrictFilesystem && confineFilesystem(logFileName) == false) {
+        return EXIT_FAILURE;
+    }
 
-    const ml::seccomp::ESystemCallFilterInstallOutcome seccompOutcome{
-        ml::seccomp::CSystemCallFilter::installSystemCallFilter()};
+    // The in-process filter belongs to the legacy/non-sandboxed route only.
+    // On the Sandbox2 route the executor's own policy is already the
+    // security boundary and ML_SANDBOXED is exactly "1", so the whole step -
+    // install, degraded-mode decision, attestation marker - is skipped.
+    // Attempting it from inside an already-sandboxed environment would
+    // either fail (which would terminate every enforced-route launch when
+    // TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is true) or succeed and emit the
+    // legacy-route attestation marker on a launch the controller's
+    // sandbox2_launch signal reports as "route":"sandbox2".
+    const bool sandbox2Launched{ml::seccomp::sandbox2LaunchedChild()};
+    // The same filter is installed on the Landlock rung - Landlock and seccomp
+    // are meant to stack - so its attestation names that route, matching the
+    // controller's sandbox2_launch signal for this launch.
+    const ml::seccomp::SInProcessFilterResult seccompResult{ml::seccomp::applyInProcessSeccompFilter(
+        sandbox2Launched, ml::seccomp::TERMINATE_ON_DEGRADED_SECCOMP_FAILURE,
+        [] { return ml::seccomp::CSystemCallFilter::installSystemCallFilter(); },
+        restrictFilesystem ? "landlock" : "legacy")};
 
-    if (ml::seccomp::decideDegradedModeAction(seccompOutcome, TERMINATE_ON_DEGRADED_SECCOMP_FAILURE) ==
-        ml::seccomp::EDegradedModeAction::E_TerminateBeforeIo) {
-        LOG_FATAL(<< "Seccomp installation " << ml::seccomp::describe(seccompOutcome)
+    if (seccompResult.s_Attempted == false) {
+        LOG_DEBUG(<< "ML_SANDBOXED=1: skipping in-process system call filter "
+                     "installation; the Sandbox2 executor policy applies");
+    } else if (seccompResult.s_Action == ml::seccomp::EDegradedModeAction::E_TerminateBeforeIo) {
+        LOG_FATAL(<< "Seccomp installation "
+                  << ml::seccomp::describe(seccompResult.s_Outcome)
                   << "; terminating before untrusted model processing");
         return EXIT_FAILURE;
     }
 
     // Explicit structured attestation the controller/Elasticsearch can
     // assert on directly, rather than inferring readiness from the absence
-    // of a fatal log line above.
-    const std::string degradedModeMarker{
-        ml::seccomp::degradedModeAttestationMarker(seccompOutcome)};
-    if (degradedModeMarker.empty() == false) {
-        LOG_INFO(<< degradedModeMarker);
+    // of a fatal log line above. Empty (never emitted) on the Sandbox2
+    // route, which installs no in-process filter to attest.
+    if (seccompResult.s_AttestationMarker.empty() == false) {
+        LOG_INFO(<< seccompResult.s_AttestationMarker);
     }
 
     if (ioMgr.initIo() == false) {

@@ -51,6 +51,8 @@
 #include <core/CStringUtils.h>
 #include <core/CThread.h>
 
+#include <sandbox/CSandbox2Diagnostics.h>
+
 #include <ver/CBuildInfo.h>
 
 #include "CBlockingCallCancellingStreamMonitor.h"
@@ -157,6 +159,11 @@ int main(int argc, char** argv) {
     // statically links its own version library.
     LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
 
+    // Probe before CCommandProcessor starts the legacy spawner's tracker
+    // thread: its waitpid(-1) could collect the probe child and cache a
+    // false E_ProbeFailed for the life of the controller.
+    ml::sandbox::hostConfinement();
+
     // Harden against same-UID /proc/<pid>/mem writes before accepting commands.
     if (makeProcessNonDumpable() == false) {
         LOG_FATAL(<< "Could not mark ML controller non-dumpable");
@@ -206,8 +213,18 @@ int main(int argc, char** argv) {
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
         "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize",
         "./pytorch_inference"};
+    // Unconditional on every platform, deliberately: this list only
+    // nominates which process path the --disableSandbox/--requireSandbox
+    // controller tokens are meaningful for; it does not by itself launch
+    // Sandbox2. A no-token launch of ./pytorch_inference always takes the
+    // legacy route and never fails for that reason alone. An explicit
+    // --requireSandbox on a build without Sandbox2 support fails closed by
+    // design; Elasticsearch emits the routing tokens only on Linux
+    // (PyTorchBuilder), so macOS/Windows never send --requireSandbox here.
+    ml::controller::CCommandProcessor::TStrVec sandboxedProcessPaths{"./pytorch_inference"};
 
-    ml::controller::CCommandProcessor processor{permittedProcessPaths, *outputStream};
+    ml::controller::CCommandProcessor processor{
+        permittedProcessPaths, sandboxedProcessPaths, *outputStream};
     processor.processCommands(*commandStream);
 
     cancellerThread.stop();

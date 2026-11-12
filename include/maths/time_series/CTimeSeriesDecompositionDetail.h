@@ -38,6 +38,7 @@
 namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
 class CComponentsTest;
+class CChangePointWindowInspector;
 }
 
 namespace ml {
@@ -290,6 +291,9 @@ public:
         //! Reset the test at \p time.
         void reset(core_t::TTime time);
 
+        //! Reset the test after a forced time shift at \p time.
+        void resetAfterTimeShift(core_t::TTime time);
+
     private:
         using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
         using TFloatMeanAccumulatorCBuf = boost::circular_buffer<TFloatMeanAccumulator>;
@@ -386,6 +390,9 @@ public:
 
         //! The derate to apply to the outlier weight immediately after the last change point.
         COutlierWeightDerate m_LastChangeOutlierWeightDerate;
+
+        //! Befriend a helper class used by the unit tests
+        friend class CTimeSeriesDecompositionTest::CChangePointWindowInspector;
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant

@@ -17,7 +17,9 @@
 #include <core/CThread.h>
 
 #include <algorithm>
+#include <functional>
 #include <set>
+#include <vector>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -37,6 +39,11 @@ namespace {
 
 //! Maximum number of newly opened files between calls to setupFileActions().
 const int MAX_NEW_OPEN_FILES{10};
+
+//! Environment variable name (without '=') that must never be inherited by a
+//! child spawned by this class. See
+//! ml::core::detail::isStrippedChildEnvEntry().
+const char* SANDBOXEE_MARKER_ENV_NAME{"ML_SANDBOXED"};
 
 //! Attempt to close all file descriptors except the standard ones.  The
 //! standard file descriptors will be reopened on /dev/null in the spawned
@@ -86,6 +93,31 @@ namespace ml {
 namespace core {
 namespace detail {
 
+bool isStrippedChildEnvEntry(const char* entry) {
+    if (entry == nullptr) {
+        return false;
+    }
+    const std::size_t nameLength{::strlen(SANDBOXEE_MARKER_ENV_NAME)};
+    // Exact name match only: "ML_SANDBOXED=..." is stripped,
+    // "ML_SANDBOXED_FOO=..." (a different variable that merely shares the
+    // prefix) is not.
+    return ::strncmp(entry, SANDBOXEE_MARKER_ENV_NAME, nameLength) == 0 &&
+           entry[nameLength] == '=';
+}
+
+std::vector<char*> buildChildEnvironment(char** parentEnvironment) {
+    std::vector<char*> childEnvironment;
+    if (parentEnvironment != nullptr) {
+        for (char** entry = parentEnvironment; *entry != nullptr; ++entry) {
+            if (isStrippedChildEnvEntry(*entry) == false) {
+                childEnvironment.push_back(*entry);
+            }
+        }
+    }
+    childEnvironment.push_back(static_cast<char*>(nullptr));
+    return childEnvironment;
+}
+
 class CTrackerThread : public CThread {
 public:
     using TPidSet = std::set<CProcess::TPid>;
@@ -96,6 +128,11 @@ public:
     //! Mutex is accessible so the code outside the class can avoid race
     //! conditions.
     CMutex& mutex() { return m_Mutex; }
+
+    void setOnChildExited(std::function<void(CProcess::TPid)> onChildExited) {
+        CScopedLock lock(m_Mutex);
+        m_OnChildExited = std::move(onChildExited);
+    }
 
     //! Add a PID to track.
     void addPid(CProcess::TPid pid) {
@@ -130,27 +167,50 @@ public:
             return false;
         }
 
-        CScopedLock lock(m_Mutex);
-        // Do an extra cycle of waiting for zombies, so we give the most
-        // up-to-date answer possible
-        const_cast<CTrackerThread*>(this)->checkForDeadChildren();
-        return m_Pids.find(pid) != m_Pids.end();
+        std::vector<CProcess::TPid> exitedPids;
+        std::function<void(CProcess::TPid)> onChildExited;
+        bool found{false};
+        {
+            CScopedLock lock(m_Mutex);
+            // Do an extra cycle of waiting for zombies, so we give the most
+            // up-to-date answer possible
+            const_cast<CTrackerThread*>(this)->checkForDeadChildren(exitedPids);
+            onChildExited = m_OnChildExited;
+            found = m_Pids.find(pid) != m_Pids.end();
+        }
+        // The reaper may unlink directories; keep that IO off the tracker mutex
+        // so spawn() is not blocked behind a slow $TMPDIR.
+        for (CProcess::TPid exitedPid : exitedPids) {
+            if (onChildExited) {
+                onChildExited(exitedPid);
+            }
+        }
+        return found;
     }
 
 protected:
     void run() override {
-        CScopedLock lock(m_Mutex);
-
         while (!m_Shutdown) {
-            // Reap zombies every 50ms if child processes are running,
-            // otherwise wait for a child process to start.
-            if (m_Pids.empty()) {
-                m_Condition.wait();
-            } else {
-                m_Condition.wait(50);
-            }
+            std::vector<CProcess::TPid> exitedPids;
+            std::function<void(CProcess::TPid)> onChildExited;
+            {
+                CScopedLock lock(m_Mutex);
+                // Reap zombies every 50ms if child processes are running,
+                // otherwise wait for a child process to start.
+                if (m_Pids.empty()) {
+                    m_Condition.wait();
+                } else {
+                    m_Condition.wait(50);
+                }
 
-            this->checkForDeadChildren();
+                this->checkForDeadChildren(exitedPids);
+                onChildExited = m_OnChildExited;
+            }
+            for (CProcess::TPid exitedPid : exitedPids) {
+                if (onChildExited) {
+                    onChildExited(exitedPid);
+                }
+            }
         }
     }
 
@@ -163,8 +223,9 @@ protected:
 
 private:
     //! Reap zombie child processes and adjust the set of live child PIDs
-    //! accordingly.  MUST be called with m_Mutex locked.
-    void checkForDeadChildren() {
+    //! accordingly.  MUST be called with m_Mutex locked. Appends each reaped
+    //! PID to \p exitedPids for the caller to notify outside the lock.
+    void checkForDeadChildren(std::vector<CProcess::TPid>& exitedPids) {
         int status = 0;
         for (;;) {
             CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
@@ -213,6 +274,7 @@ private:
                     }
                 }
                 m_Pids.erase(pid);
+                exitedPids.push_back(pid);
             }
         }
     }
@@ -220,6 +282,7 @@ private:
 private:
     bool m_Shutdown;
     TPidSet m_Pids;
+    std::function<void(CProcess::TPid)> m_OnChildExited;
     mutable CMutex m_Mutex;
     CCondition m_Condition;
 };
@@ -239,6 +302,12 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     }
 }
 
+void CDetachedProcessSpawner::setChildIpcDirectoryCallbacks(TChildExitedCallback onChildExited,
+                                                            TChildSpawnedIpcCallback onChildSpawnedWithIpc) {
+    m_OnChildSpawnedWithIpc = std::move(onChildSpawnedWithIpc);
+    m_TrackerThread->setOnChildExited(std::move(onChildExited));
+}
+
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
     return this->spawn(processPath, args, dummy);
@@ -247,6 +316,13 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    const std::string* childIpcRoot) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
@@ -287,6 +363,20 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     }
     ::posix_spawnattr_setflags(&spawnAttributes, POSIX_SPAWN_SETPGROUP);
 
+    // The child inherits this process's environment with ML_SANDBOXED
+    // removed. That variable is the Sandbox2 sandboxee marker
+    // (lib/sandbox/CSandboxedProcessSpawner_Linux.cc sets ML_SANDBOXED=1 on
+    // the children it launches) and pytorch_inference skips its mandatory
+    // in-process seccomp filter when it sees ML_SANDBOXED=1
+    // (include/seccomp/CSystemCallFilter.h sandbox2LaunchedChild()). A child
+    // spawned here is by definition *not* inside Sandbox2, so inheriting the
+    // marker - however it got into this process's own environment, e.g.
+    // injected by an orchestration layer - would fail open: the child would
+    // run untrusted model code with neither the executor policy nor its own
+    // filter. Stripping it here makes the legacy route's filter installation
+    // unconditional regardless of the spawning process's environment.
+    std::vector<char*> childEnvironment{detail::buildChildEnvironment(environ)};
+
     {
         // Hold the tracker thread mutex until the PID is added to the tracker
         // to avoid a race condition if the process is started but dies really
@@ -294,7 +384,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         CScopedLock lock(m_TrackerThread->mutex());
 
         int err(::posix_spawn(&childPid, processPath.c_str(), &fileActions,
-                              &spawnAttributes, &argv[0], environ));
+                              &spawnAttributes, &argv[0], &childEnvironment[0]));
 
         ::posix_spawn_file_actions_destroy(&fileActions);
         ::posix_spawnattr_destroy(&spawnAttributes);
@@ -304,6 +394,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             return false;
         }
 
+        if (childIpcRoot != nullptr && childIpcRoot->empty() == false && m_OnChildSpawnedWithIpc) {
+            m_OnChildSpawnedWithIpc(childPid, *childIpcRoot);
+        }
         m_TrackerThread->addPid(childPid);
     }
 

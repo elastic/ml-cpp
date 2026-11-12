@@ -26,6 +26,7 @@
 
 namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
+class CChangePointWindowInspector;
 }
 
 namespace ml {
@@ -297,6 +298,9 @@ private:
 
     //! Befriend a helper class used by the unit tests
     friend class CTimeSeriesDecompositionTest::CNanInjector;
+
+    //! Befriend a helper class used by the unit tests
+    friend class CTimeSeriesDecompositionTest::CChangePointWindowInspector;
 };
 }
 }

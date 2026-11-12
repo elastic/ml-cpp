@@ -3,3 +3,6 @@ pytest>=7.0.0,<9
 # Import-time deps for changelog scripts exercised by tests (bundle_changelogs, etc.).
 PyYAML>=6.0
 jsonschema>=4.0.0
+# Transitive dep (via jsonschema/importlib.metadata); floor-pinned to pull in the
+# fix for CVE-2024-5569 (infinite-loop DoS on malformed zip paths).
+zipp>=3.19.1
