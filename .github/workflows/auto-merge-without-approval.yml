@@ -1,0 +1,86 @@
+name: Auto-merge without approval
+
+# Lets a maintainer merge a PR to a release branch without chasing a second human
+# review, once they have judged it a straightforward backport: add the label
+# `auto-merge-without-approval`. github-actions[bot] then approves the PR and arms
+# squash auto-merge, which still waits for the required CI checks
+# (buildkite/ml-cpp-pr-builds). The same identity trick as backport.yml and
+# auto-approve-version-bump.yml: a token cannot approve its own PR, but the PR
+# author is a human or the ephemeral app, so the approval counts.
+#
+# Guards, all of which must hold:
+#   * the label is applied by a human with write access (not by automation);
+#   * the PR targets a release branch, never the default branch;
+#   * the PR is not a draft.
+# Changes to the default branch still need a real review.
+#
+# pull_request_target reads this workflow from the PR's *base* branch, so this
+# file must live on each active release branch as well as main (backport it like
+# backport.yml). It never checks out PR code.
+
+on:
+  pull_request_target:
+    types: ["labeled"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  approve-and-arm:
+    name: Approve and arm auto-merge
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      # Required by elastic/ci-gh-actions/fetch-github-token (see backport.yml).
+      id-token: write
+    if: >-
+      github.event.label.name == 'auto-merge-without-approval' &&
+      github.event.sender.type == 'User' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.base.ref != github.event.repository.default_branch
+    steps:
+      - name: Check the label was applied by someone with write access
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SENDER: ${{ github.event.sender.login }}
+        run: |
+          set -euo pipefail
+          permission=$(gh api "repos/$REPO/collaborators/$SENDER/permission" --jq .permission)
+          case "$permission" in
+            admin|maintain|write) echo "$SENDER has $permission access." ;;
+            *) echo "::error::$SENDER has '$permission' access; write access is needed to apply this label."; exit 1 ;;
+          esac
+
+      # An approval needs a distinct identity from the PR author, and auto-merge
+      # armed by github-actions[bot] would not trigger the workflows that run when
+      # the PR merges (GitHub's recursion guard), so arm it with the app token when
+      # it is available. Falls back to GITHUB_TOKEN, as in backport.yml.
+      - name: Fetch ephemeral GitHub token
+        id: ephemeral_token
+        continue-on-error: true
+        uses: elastic/ci-gh-actions/fetch-github-token@v1
+        with:
+          vault-instance: "ci-prod"
+
+      - name: Approve and enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_TOKEN: ${{ steps.ephemeral_token.outputs.token || secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          SENDER: ${{ github.event.sender.login }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -euo pipefail
+          # A re-applied label re-triggers this workflow; don't stack approvals.
+          approved=$(gh api --paginate "repos/$REPO/pulls/$PR/reviews" \
+            --jq '[.[] | select(.user.login == "github-actions[bot]" and .state == "APPROVED")] | length' \
+            | awk '{s+=$1} END {print s+0}')
+          if [ "$approved" -eq 0 ]; then
+            gh pr review "$PR" --repo "$REPO" --approve \
+              --body "Automated approval: @$SENDER added the \`auto-merge-without-approval\` label to this PR for \`$BASE\`. Auto-merge is armed and will merge once the required CI checks are green."
+          fi
+          GH_TOKEN="$MERGE_TOKEN" gh pr merge "$PR" --repo "$REPO" --auto --squash
