@@ -190,11 +190,19 @@ public:
 
 protected:
     void run() override {
-        while (!m_Shutdown) {
+        for (;;) {
             std::vector<CProcess::TPid> exitedPids;
             std::function<void(CProcess::TPid)> onChildExited;
             {
                 CScopedLock lock(m_Mutex);
+                // Check for shutdown with the mutex held.  shutdown() sets the
+                // flag and signals under this same mutex, so a request made
+                // before we wait is seen here, and one made after is signalled
+                // while we wait.  Checking outside the lock can miss the
+                // signal and then wait forever when there are no children.
+                if (m_Shutdown) {
+                    break;
+                }
                 // Reap zombies every 50ms if child processes are running,
                 // otherwise wait for a child process to start.
                 if (m_Pids.empty()) {
