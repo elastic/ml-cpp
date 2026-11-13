@@ -26,7 +26,7 @@ grep '^#define EIGEN_MAJOR_VERSION 4' "$VERSION_FILE" > /dev/null 2>&1 && \
 grep '^#define EIGEN_MINOR_VERSION 0' "$VERSION_FILE" > /dev/null 2>&1
 if [ $? -ne 0 ] ; then
     rm -rf eigen
-    git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git || exit 1
+    git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git || { rm -rf eigen; exit 1; }
     # A tag can be moved, or a clone intercepted: check what was actually cloned.
     # Keep this in step with the COMMIT in pull-eigen.cmake.
     ACTUAL_COMMIT=`cd eigen && git rev-parse HEAD`

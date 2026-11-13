@@ -18,7 +18,7 @@
 cd `dirname "$BASH_SOURCE"`
 
 if [ ! -d "valijson" ] ; then
-    git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 https://github.com/tristanpenman/valijson.git || exit 1
+    git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 https://github.com/tristanpenman/valijson.git || { rm -rf valijson; exit 1; }
     # A tag can be moved, or a clone intercepted: check what was actually cloned.
     # Keep this in step with the COMMIT in pull-valijson.cmake.
     ACTUAL_COMMIT=`cd valijson && git rev-parse HEAD`
