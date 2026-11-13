@@ -13,10 +13,12 @@
 # whether they trust the compromised eMudhra CAs (InfoSec incident "Intrepid
 # Falcon").  The host steps run after the post-checkout mitigation, so PASS
 # means it took effect.  Exit 1 (a store still trusts them) fails the build;
-# exit 2 (inconclusive, e.g. the test site is unreachable) only warns.  The
-# CentOS 7 images trust them as shipped and have no fixed package: those steps
-# are known gaps (soft-fail), and the mitigation covers the steps that run in
-# them.
+# exit 2 (inconclusive, e.g. the test site is unreachable) only warns.  CentOS 7
+# has no fixed package: the x86_64 build and aarch64 cross-build images have the
+# roots blacklisted in the image (the 32b and 15b overlays), which matters because
+# the Vault login and the Git clone run before post-checkout.  The native aarch64
+# image trusts them as shipped (a known gap, soft-fail); its Docker builds
+# distrust them in docker_entrypoint.sh.
 
 CHECK=".buildkite/scripts/steps/check_ca_trust.sh"
 
@@ -31,23 +33,20 @@ AARCH64_AGENTS='    agents:
       diskName: "/dev/xvda"'
 
 # Emits a step that runs the check inside the given Docker image, without the
-# post-checkout mitigation, so it reports the image as-is.  A fifth argument
-# "gap" soft-fails the step: a known gap.  A sixth argument "mitigated" runs the
-# step with the mitigation instead, as the build steps that use the image do.
+# post-checkout mitigation, so it reports the image as-is.
 image_step() {
-    local key="$1" label="$2" image="$3" uid="${4:-}" gap="${5:-}" mode="${6:-}"
-    local soft_fail="${SOFT_FAIL_INCONCLUSIVE}"
-    [ "${gap}" = gap ] && soft_fail='    soft_fail: true'
+    local key="$1" label="$2" image="$3" uid="${4:-}"
     cat <<STEP
   - label: "CA trust check: ${label}"
     key: "check_ca_trust_${key}"
     command: "${CHECK}"
-${soft_fail}
+${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
+    env:
+      EMUDHRA_SKIP_MITIGATION: "true"
+    agents:
+      image: "${image}"
 STEP
-    [ "${mode}" = mitigated ] || printf '    env:\n      EMUDHRA_SKIP_MITIGATION: "true"\n'
-    echo "    agents:"
-    echo "      image: \"${image}\""
     if [ -n "${uid}" ]; then
         echo "      imageUID: \"${uid}\""
     fi
@@ -57,14 +56,10 @@ cat <<EOL
 steps:
 EOL
 
-# The x86_64 build and the aarch64 cross-compile steps run in these images; they
-# are CentOS 7, which has no fixed ca-certificates package.
-image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml-linux-build:32a" "" gap
-image_step linux_aarch64_cross "Linux aarch64 cross-build image" "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:15a" "" gap
-# The same two images with the mitigation, as the build steps use them: the pods
-# run as root, so post-checkout can blacklist the roots in the image's CA store.
-image_step linux_build_mitigated "Linux build image (x86_64), mitigated" "docker.elastic.co/ml-dev/ml-linux-build:32a" "" "" mitigated
-image_step linux_aarch64_cross_mitigated "Linux aarch64 cross-build image, mitigated" "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:15a" "" "" mitigated
+# The x86_64 build and the aarch64 cross-compile steps run in these images, which
+# are CentOS 7 overlays with the roots blacklisted (dev-tools/docker/linux_distrust_overlay).
+image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml-linux-build:32b"
+image_step linux_aarch64_cross "Linux aarch64 cross-build image" "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:15b"
 # The DRA steps run as non-root (imageUID 1000), so the mitigation can't apply:
 # the image itself must be fixed (version 6 is Ubuntu 22.04).
 image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:6" 1000
