@@ -26,6 +26,11 @@ fi
 MY_DIR=`dirname "$BASH_SOURCE"`
 cd "$MY_DIR/../.."
 
+# Temporary: distrust the compromised eMudhra roots in the container's CA store,
+# before the build clones its dependencies.  The CentOS 7 images have no fixed
+# ca-certificates package.  Best-effort: it never fails the build.
+bash .buildkite/scripts/common/distrust_emudhra_cas.sh || true
+
 # Set a consistent environment
 . ./set_env.sh
 

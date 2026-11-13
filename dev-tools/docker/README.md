@@ -36,7 +36,7 @@ required to build the machine learning C++ code dependencies:
 2. Change the Dockerfile and build a new image to be used for subsequent builds on this branch.
 3. Update the version to be used for builds in docker files that refer to it.
 
-### Depends on: ml-linux-build:32a
+### Depends on: ml-linux-build:32b
 
 ### Build script: dev-tools/docker/build_linux_dependency_builder_image.sh
 
@@ -44,7 +44,9 @@ required to build the machine learning C++ code dependencies:
 
 ## Repository: ml-linux-build
 
-### Latest version: 32a
+### Latest version: 32b
+
+`32b` is `32a` with the compromised eMudhra roots distrusted (see "Distrust overlay" below).
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -63,7 +65,9 @@ used for subsequent builds on this branch.
 
 ## Repository: ml-linux-aarch64-cross-build
 
-### Latest version: 15a
+### Latest version: 15b
+
+`15b` is `15a` with the compromised eMudhra roots distrusted (see "Distrust overlay" below).
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -100,7 +104,7 @@ or 3rd party components required to build the machine learning C++ code:
 
 ## Repository: ml_cpp_linux_x86_64_jdk17
 
-### Latest version: 3
+### Latest version: 6
 
 ### Comments
 A Docker image that can be used to run a subset of the ES
@@ -110,6 +114,14 @@ This image is not intended to be built regularly. If changing the *Dockerfile* i
 
  1. Increment the version
  2. Build a new image
+
+Notes:
+
+ - A version 4 of this image was pushed to the registry in 2023 without the
+   version being recorded here. It was left untouched. Check the registry for the
+   next free tag before building a new version.
+ - Version 5 was Ubuntu 20.04 with the eMudhra roots distrusted at build time.
+ - Version 6 moved to Ubuntu 22.04, whose ca-certificates package carries the fix.
 
 ### Build script: dev-tools/docker/build_linux_jdk.sh
 
@@ -129,3 +141,18 @@ This image is not intended to be built regularly.  When changing the
  
 ### Build script: dev-tools/docker/build_check_style_image.sh
 
+
+## Distrust overlay
+
+### Comments
+`ml-linux-build:32b` and `ml-linux-aarch64-cross-build:15b` are thin layers over
+`32a` and `15a` that blacklist the compromised eMudhra roots (InfoSec incident
+"Intrepid Falcon") in the CentOS 7 CA store, using the script the Buildkite
+`post-checkout` hook runs (*.buildkite/scripts/common/distrust_emudhra_cas.sh*),
+and fail the build if the roots are still trusted.  CentOS 7 is end of life and
+has no fixed `ca-certificates` package.  The overlay is needed because the
+Vault login and the Git clone run in these images before `post-checkout`.  The
+toolchain is not rebuilt.  The native aarch64 image (`15a`) is not overlaid: its
+Docker builds distrust the roots in *dev-tools/docker/docker_entrypoint.sh*.
+
+### Build script: dev-tools/docker/build_linux_distrust_overlay_images.sh
