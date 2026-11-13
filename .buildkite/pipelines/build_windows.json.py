@@ -35,7 +35,7 @@ windows_agents = {
     "provider": "gcp",
     "machineType": "c2-standard-16",
     "minCpuPlatform": "Intel Cascade Lake",
-    "image": "family/ml-cpp-5-windows-2022",
+    "image": "family/ml-cpp-6-windows-2022",
 }
 
 common_env = {
