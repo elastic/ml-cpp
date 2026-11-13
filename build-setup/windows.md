@@ -95,40 +95,6 @@ nmake -f win32/Makefile.msc test
 
 All the build output will end up in the top level `C:\tools\zlib-1.3.1` directory. Once the build is complete, copy `zlib1.dll` and `minigzip.exe` to `C:\usr\local\bin`. Copy `zlib.lib` and `zdll.lib` to `C:\usr\local\lib`. And copy `zlib.h` and `zconf.h` to `C:\usr\local\include`.
 
-### libxml2
-
-Download `libxml2-2.9.14.tar.xz` from <https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.14.tar.xz>.
-
-Extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
-
-```
-cd /c/tools
-tar Jxvf /z/cpp_src/libxml2-2.9.14.tar.xz
-```
-
-Edit `C:\tools\libxml2-2.9.14\win32\Makefile.msvc` and change the following lines:
-
-```
-CFLAGS = $(CFLAGS) /D "NDEBUG" /O2
-```
-
-to:
-
-```
-CFLAGS = $(CFLAGS) /D "NDEBUG" /O2 /Zi /D_WIN32_WINNT=0x0601
-```
-
-(because we might as well generate a PDB file and we want to limit Windows API functions to those that exist in Windows Server 2008r2).
-
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2022 -&gt; x64 Native Tools Command Prompt for VS 2022, then in it type:
-
-```
-cd \tools\libxml2-2.9.14\win32
-cscript configure.js iconv=no prefix=C:\usr\local
-nmake
-nmake install
-```
-
 ### Boost 1.86.0
 
 Download version 1.86.0 of Boost from <https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2> . You must get this exact version, as the Machine Learning build system requires it.
