@@ -77,6 +77,13 @@ else()
   set(_test_timeout 2700)
 endif()
 
+# The per-batch watchdog (cmake/run-with-watchdog.sh) fires shortly before
+# CTest's own timeout so a hung test's stacks are logged before it is killed.
+math(EXPR _watchdog_seconds "${_test_timeout} - 30")
+if(_watchdog_seconds LESS 10)
+  set(_watchdog_seconds 10)
+endif()
+
 # --- Discover all test suites ---
 # Each test suite is defined by its executable and the source directory
 # (which is the working directory for that suite's tests).
@@ -213,6 +220,7 @@ file(MAKE_DIRECTORY "${_ctest_dir}")
 
 set(_ctest_file_content "")
 set(_batch_id 0)
+set(_batch_records "")
 
 foreach(_suite_entry ${_suites})
   string(REPLACE ":" ";" _parts "${_suite_entry}")
@@ -251,6 +259,7 @@ foreach(_suite_entry ${_suites})
       list(GET _batch -1 _last_case)
       set(_test_label "ml_test_${_name}_${_first_case}:${_last_case}")
       string(REPLACE "/" "_" _test_label "${_test_label}")
+      list(APPEND _batch_records "${_name}|${_src_dir}|${_run_test}")
 
       string(APPEND _ctest_file_content
         "add_test(\"${_test_label}\" \"${CMAKE_COMMAND}\""
@@ -260,7 +269,7 @@ foreach(_suite_entry ${_suites})
         "set_tests_properties(\"${_test_label}\" PROPERTIES"
         " WORKING_DIRECTORY \"${SOURCE_DIR}/${_src_dir}\""
         " TIMEOUT ${_test_timeout}"
-        " ENVIRONMENT \"TESTS=${_run_test}\")\n"
+        " ENVIRONMENT \"TESTS=${_run_test};ML_TEST_WATCHDOG_SECONDS=${_watchdog_seconds}\")\n"
       )
 
       set(_batch "")
@@ -277,6 +286,7 @@ foreach(_suite_entry ${_suites})
     list(GET _batch -1 _last_case)
     set(_test_label "ml_test_${_name}_${_first_case}:${_last_case}")
     string(REPLACE "/" "_" _test_label "${_test_label}")
+    list(APPEND _batch_records "${_name}|${_src_dir}|${_run_test}")
 
     string(APPEND _ctest_file_content
       "add_test(\"${_test_label}\" \"${CMAKE_COMMAND}\""
@@ -286,7 +296,7 @@ foreach(_suite_entry ${_suites})
       "set_tests_properties(\"${_test_label}\" PROPERTIES"
       " WORKING_DIRECTORY \"${SOURCE_DIR}/${_src_dir}\""
       " TIMEOUT ${_test_timeout}"
-      " ENVIRONMENT \"TESTS=${_run_test}\")\n"
+      " ENVIRONMENT \"TESTS=${_run_test};ML_TEST_WATCHDOG_SECONDS=${_watchdog_seconds}\")\n"
     )
   endif()
 endforeach()
@@ -310,6 +320,68 @@ execute_process(
 if(NOT _ctest_rc EQUAL 0)
   message(WARNING "Some tests failed (exit code: ${_ctest_rc})")
 endif()
+
+# --- Record batches that did not finish ---
+# A batch killed by a timeout or crash leaves an empty or truncated JUnit
+# file, so its cases would otherwise vanish from the merged results (and from
+# Test Analytics) while the build still fails.  Report each case that has no
+# result as a failure.
+foreach(_rec ${_batch_records})
+  string(REPLACE "|" ";" _rec_parts "${_rec}")
+  list(GET _rec_parts 0 _name)
+  list(GET _rec_parts 1 _src_dir)
+  list(GET _rec_parts 2 _run_test)
+  string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" _safe_name "${_run_test}")
+  set(_junit_file "${SOURCE_DIR}/${_src_dir}/boost_test_results_${_safe_name}.junit")
+
+  set(_content "")
+  if(EXISTS "${_junit_file}")
+    file(READ "${_junit_file}" _content)
+  endif()
+  # Boost.Test only closes the testsuite element when the run completes
+  if(_content MATCHES "</testsuite>")
+    continue()
+  endif()
+
+  set(_failed_file "${BUILD_DIR}/test/${_src_dir}/ml_test_${_name}_${_safe_name}.failed")
+  set(_reason "killed by CTest timeout or crashed before reporting")
+  if(EXISTS "${_failed_file}")
+    file(READ "${_failed_file}" _marker)
+    if(_marker STREQUAL "timeout")
+      set(_reason "timed out (see watchdog diagnostics in the log)")
+    endif()
+  endif()
+
+  string(REGEX MATCHALL "<testcase [^<]*(/>([\r\n])?|>([^<]|<[^/]|</[^t]|</t[^e])*</testcase>)" _done_cases "${_content}")
+  set(_junit_body "")
+  set(_n_missing 0)
+  string(REPLACE ":" ";" _batch_cases "${_run_test}")
+  foreach(_case ${_batch_cases})
+    string(REPLACE "/" ";" _case_parts "${_case}")
+    list(GET _case_parts 0 _classname)
+    list(GET _case_parts -1 _casename)
+    if(_content MATCHES "name=\"${_casename}\"")
+      continue()
+    endif()
+    string(APPEND _junit_body
+      "<testcase assertions=\"0\" classname=\"${_classname}\" name=\"${_casename}\" time=\"0\">\n"
+      "<failure message=\"Batch ${_reason}\" type=\"incomplete\"/>\n"
+      "</testcase>\n")
+    math(EXPR _n_missing "${_n_missing} + 1")
+  endforeach()
+
+  if(_n_missing GREATER 0)
+    foreach(_done ${_done_cases})
+      string(APPEND _junit_body "${_done}\n")
+    endforeach()
+    file(WRITE "${_junit_file}"
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      "<testsuite tests=\"${_n_missing}\" errors=\"0\" failures=\"${_n_missing}\" id=\"0\" name=\"Master_Test_Suite\">\n"
+      "${_junit_body}"
+      "</testsuite>\n")
+    message(WARNING "ml_test_${_name}: batch ${_run_test} ${_reason}; recorded ${_n_missing} failed case(s) in ${_junit_file}")
+  endif()
+endforeach()
 
 # --- Merge JUnit results per suite ---
 # Each batch writes boost_test_results_<batch>.junit in the suite's source
