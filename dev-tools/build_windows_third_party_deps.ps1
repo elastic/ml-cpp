@@ -49,21 +49,6 @@ Copy-Item .\zlib.h  -Destination C:\usr\local\include\
 Copy-Item .\zconf.h  -Destination C:\usr\local\include\
 Write-Host "--- Done Installing zlib 1.3.1"
 
-# Build and install libxml2 2.9.14
-Write-Host "--- Installing libxml2 2.9.14"
-cd c:\tools
-$Archive="libxml2-2.9.14.tar.xz"
-$ZipSource="https://download.gnome.org/sources/libxml2/2.9/$Archive"
-$ZipDestination="\tools\$Archive"
-(New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
-C:\Progra~1\git\bin\bash.exe -c "tar Jxvf libxml2-2.9.14.tar.xz"
-cd \tools\libxml2-2.9.14\win32
-(Get-Content .\Makefile.msvc) -replace """NDEBUG"" /O2" , """NDEBUG"" /O2 /Zi /D_WIN32_WINNT=0x0601" | Set-Content .\Makefile.msvc
-cscript configure.js iconv=no prefix=C:\usr\local
-nmake
-nmake install
-Write-Host "--- Done Installing libxml2 2.9.14"
-
 # Build and install Boost 1.86.0
 Write-Host "--- Installing boost 1.86.0"
 cd c:\tools

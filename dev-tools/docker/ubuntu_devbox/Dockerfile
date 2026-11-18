@@ -69,17 +69,6 @@ RUN \
   cd .. && \
   rm -rf binutils-2.41
 
-# Build libxml2
-RUN \
-  cd ${build_dir} && \
-  wget --quiet --no-check-certificate -O - https://download.gnome.org/sources/libxml2/2.10/libxml2-2.10.4.tar.xz | tar Jxf - && \
-  cd libxml2-2.10.4 && \
-  ./configure --prefix=/usr/local/gcc133 --without-python --without-readline && \
-  make -j`nproc` && \
-  make install && \
-  cd .. && \
-  rm -rf libxml2-2.10.4
-
 # Build Boost
 RUN \
   cd ${build_dir} && \
