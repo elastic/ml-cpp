@@ -73,7 +73,10 @@ public:
 
     //! Compute inner node values as weighted average of the children (leaf) values.
     //!
-    //! The weights are the number of rows of \p frame reaching each node.
+    //! The weights are the number of rows of \p frame reaching each node. A node
+    //! below the root which no rows reach uses equal weights instead, matching the
+    //! even split used when computing SHAP values. If no rows reach the root its
+    //! value is NaN.
     static void computeInternalNodeValues(TTreeVec& forest);
 
     //! Get the maximum depth of any tree in \p forest.
