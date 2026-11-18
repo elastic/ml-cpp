@@ -10,8 +10,11 @@ name: Auto-merge without approval
 #
 # Guards, all of which must hold:
 #   * the label is applied by a human with write access (not by automation);
-#   * the PR targets a release branch, never the default branch;
+#   * the PR targets a release branch (named like 9.6 or 8.19), never any other
+#     branch;
 #   * the PR is not a draft.
+# The base branch, draft state and label are re-read from the API just before the
+# approval, so a PR retargeted or edited after the label event is not approved.
 # Changes to the default branch still need a real review.
 #
 # pull_request_target reads this workflow from the PR's *base* branch, so this
@@ -31,7 +34,8 @@ jobs:
     name: Approve and arm auto-merge
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # Write is needed for `gh pr merge --auto` when falling back to GITHUB_TOKEN.
+      contents: write
       pull-requests: write
       # Required by elastic/ci-gh-actions/fetch-github-token (see backport.yml).
       id-token: write
@@ -72,15 +76,22 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
           SENDER: ${{ github.event.sender.login }}
-          BASE: ${{ github.event.pull_request.base.ref }}
         run: |
           set -euo pipefail
+          # The event payload may be stale; re-check the PR as it is now.
+          current=$(gh pr view "$PR" --repo "$REPO" --json baseRefName,isDraft,labels \
+            --jq '[.baseRefName, .isDraft, ([.labels[].name] | index("auto-merge-without-approval") != null)] | @tsv')
+          IFS=$'\t' read -r base draft labelled <<< "$current"
+          if ! [[ "$base" =~ ^[0-9]+\.[0-9]+$ ]] || [ "$draft" != "false" ] || [ "$labelled" != "true" ]; then
+            echo "::error::PR no longer qualifies (base='$base', draft=$draft, labelled=$labelled); not approving."
+            exit 1
+          fi
           # A re-applied label re-triggers this workflow; don't stack approvals.
           approved=$(gh api --paginate "repos/$REPO/pulls/$PR/reviews" \
             --jq '[.[] | select(.user.login == "github-actions[bot]" and .state == "APPROVED")] | length' \
             | awk '{s+=$1} END {print s+0}')
           if [ "$approved" -eq 0 ]; then
             gh pr review "$PR" --repo "$REPO" --approve \
-              --body "Automated approval: @$SENDER added the \`auto-merge-without-approval\` label to this PR for \`$BASE\`. Auto-merge is armed and will merge once the required CI checks are green."
+              --body "Automated approval: @$SENDER added the \`auto-merge-without-approval\` label to this PR for \`$base\`. Auto-merge is armed and will merge once the required CI checks are green."
           fi
           GH_TOKEN="$MERGE_TOKEN" gh pr merge "$PR" --repo "$REPO" --auto --squash
