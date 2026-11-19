@@ -171,6 +171,16 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
         "./does_not_exist", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
+BOOST_AUTO_TEST_CASE(testCreateAndDestroyImmediately) {
+    // The tracker thread must be stoppable straight after it is started, even
+    // with no children.  A missed shutdown wakeup makes the destructor block
+    // forever, so a hang (CTest timeout) is the failure signal.
+    ml::core::CDetachedProcessSpawner::TStrVec permittedPaths;
+    for (std::size_t i = 0; i < 5000; ++i) {
+        ml::core::CDetachedProcessSpawner spawner(permittedPaths);
+    }
+}
+
 #ifndef Windows
 BOOST_AUTO_TEST_CASE(testChildExitedCallbackFiresForSpawnedChild) {
     std::atomic<bool> callbackFired{false};
