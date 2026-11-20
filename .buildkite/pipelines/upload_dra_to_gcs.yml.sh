@@ -40,6 +40,13 @@ steps:
       DRA_WORKFLOW: "${DRA_WORKFLOW}"
     agents:
       provider: gcp
+    # The GCS upload occasionally fails with a transient 502; it is idempotent.
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 2
+      manual:
+        permit_on_passed: true
     plugins:
       - elastic/dra-prep#v0.1.5:
           product_id: "ml-cpp"
