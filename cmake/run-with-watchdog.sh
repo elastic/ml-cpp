@@ -54,15 +54,54 @@ dump_diagnostics() {
     echo "=== WATCHDOG: end of diagnostics ==="
 }
 
+# Print the PIDs of every descendant of $1, including processes that were put
+# in their own process group or session.
+descendants() {
+    local child
+    for child in $(pgrep -P "$1" 2>/dev/null); do
+        echo "${child}"
+        descendants "${child}"
+    done
+}
+
+# SIGKILL $1 and everything below it. Freeze the tree first so nothing can fork
+# or be reparented while the list is collected, then kill the whole list.
+kill_tree() {
+    local victims
+    victims=$(descendants "$1")
+    # shellcheck disable=SC2086
+    kill -STOP "$1" ${victims} 2>/dev/null
+    victims="${victims} $(descendants "$1")"
+    # shellcheck disable=SC2086
+    kill -9 ${victims} "$1" 2>/dev/null
+}
+
+# Diagnostics may hang (gdb, lsof), so they get a fixed budget, well inside the
+# margin before CTest's own timeout.
+diag_budget=${ML_WATCHDOG_DIAG_SECONDS:-15}
+
+timed_out_flag=$(mktemp "${TMPDIR:-/tmp}/ml-watchdog.XXXXXX")
+rm -f "${timed_out_flag}"
+
 (
     sleep "${timeout_s}" &
     sleeper=$!
     trap 'kill "${sleeper}" 2>/dev/null; exit 0' TERM
     wait "${sleeper}"
     kill -0 "${pid}" 2>/dev/null || exit 0
-    dump_diagnostics
-    pkill -9 -P "${pid}" 2>/dev/null
-    kill -9 "${pid}" 2>/dev/null
+    : > "${timed_out_flag}"
+    dump_diagnostics &
+    diag=$!
+    waited=0
+    while kill -0 "${diag}" 2>/dev/null && [ "${waited}" -lt "${diag_budget}" ]; do
+        sleep 1
+        waited=$((waited + 1))
+    done
+    if kill -0 "${diag}" 2>/dev/null; then
+        echo "=== WATCHDOG: diagnostics still running after ${diag_budget}s, abandoning them ==="
+        kill_tree "${diag}"
+    fi
+    kill_tree "${pid}"
     exit 124
 ) &
 watchdog=$!
@@ -70,7 +109,12 @@ watchdog=$!
 wait "${pid}"
 rc=$?
 
-kill "${watchdog}" 2>/dev/null
+if [ ! -e "${timed_out_flag}" ]; then
+    kill "${watchdog}" 2>/dev/null
+fi
 wait "${watchdog}" 2>/dev/null
-[ $? -eq 124 ] && exit 124
+if [ -e "${timed_out_flag}" ]; then
+    rm -f "${timed_out_flag}"
+    exit 124
+fi
 exit "${rc}"
