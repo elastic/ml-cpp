@@ -325,12 +325,21 @@ endif()
 # A batch killed by a timeout or crash leaves an empty or truncated JUnit
 # file, so its cases would otherwise vanish from the merged results (and from
 # Test Analytics) while the build still fails.  Report each case that has no
-# result as a failure.
+# result as a failure.  Only batches that are expected to write a JUnit file are
+# checked: that needs a JUnit logger in BOOST_TEST_OUTPUT_FORMAT_FLAGS, and the
+# seccomp runner always logs in HRF format instead.
+set(_junit_enabled FALSE)
+if("$ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS}" MATCHES "boost_test_results")
+  set(_junit_enabled TRUE)
+endif()
 foreach(_rec ${_batch_records})
   string(REPLACE "|" ";" _rec_parts "${_rec}")
   list(GET _rec_parts 0 _name)
   list(GET _rec_parts 1 _src_dir)
   list(GET _rec_parts 2 _run_test)
+  if(NOT _junit_enabled OR _name STREQUAL "seccomp")
+    continue()
+  endif()
   string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" _safe_name "${_run_test}")
   set(_junit_file "${SOURCE_DIR}/${_src_dir}/boost_test_results_${_safe_name}.junit")
 
@@ -360,7 +369,10 @@ foreach(_rec ${_batch_records})
     string(REPLACE "/" ";" _case_parts "${_case}")
     list(GET _case_parts 0 _classname)
     list(GET _case_parts -1 _casename)
-    if(_content MATCHES "name=\"${_casename}\"")
+    # Only a complete <testcase> counts as a result: an opening tag left by a
+    # truncated file is discarded by the merge below.  Match the suite as well
+    # as the case name, as the same name can occur in another suite.
+    if("${_done_cases}" MATCHES "<testcase [^>]*classname=\"([^\"]*[./])?${_classname}([./][^\"]*)?\"[^>]*name=\"${_casename}\"")
       continue()
     endif()
     string(APPEND _junit_body
