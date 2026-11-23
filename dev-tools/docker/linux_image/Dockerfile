@@ -65,17 +65,6 @@ RUN \
   cd .. && \
   rm -rf binutils-2.41 /tmp/*
 
-# Build libxml2
-RUN \
-  cd ${build_dir} && \
-  wget --quiet -O - https://download.gnome.org/sources/libxml2/2.10/libxml2-2.10.4.tar.xz | tar Jxf - && \
-  cd libxml2-2.10.4 && \
-  ./configure --prefix=/usr/local/gcc133 --without-python --without-readline --without-lzma --without-zstd  && \
-  make -j$(nproc) && \
-  make install && \
-  cd .. && \
-  rm -rf libxml2-2.10.4 /tmp/*
-
 RUN \
   for i in $(ls /lib64/libzstd.*); do mv $i "$i.bak" ; done && \
   for i in $(ls /lib64/liblzma.*); do mv $i "$i.bak" ; done

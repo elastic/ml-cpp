@@ -156,25 +156,6 @@ sudo make prefix=/usr install
 
 Without the `prefix=/usr` bit, you'll end up with a personal Git build in `~/bin` instead of one everyone on the machine can use.
 
-### libxml2
-
-Download `libxml2-2.10.4.tar.xz` from <https://download.gnome.org/sources/libxml2/2.10/libxml2-2.10.4.tar.xz>.
-
-Uncompress and untar the resulting file. Then run:
-
-```
-./configure --prefix=/usr/local/gcc133 --without-python --without-readline
-```
-
-This should build an appropriate Makefile. Assuming it does, type:
-
-```
-make
-sudo make install
-```
-
-to install.
-
 ### Boost 1.86.0
 
 Download version 1.86.0 of Boost from <https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
