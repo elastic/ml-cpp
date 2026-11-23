@@ -62,6 +62,7 @@ public:
     using TLossFunctionUPtr = maths::analytics::CBoostedTreeImpl::TLossFunctionUPtr;
     using TSizeVec = maths::analytics::CBoostedTreeImpl::TSizeVec;
     using TDoubleVec = maths::analytics::CBoostedTreeImpl::TDoubleVec;
+    using TFloatVecVec = maths::analytics::CBoostedTreeImpl::TFloatVecVec;
     using TBoostedTreeUPtr = std::unique_ptr<maths::analytics::CBoostedTree>;
 
 public:
@@ -77,6 +78,10 @@ public:
 
     const TDoubleVec& featureSampleProbabilities() const {
         return m_TreeImpl.featureSampleProbabilities();
+    }
+
+    const TFloatVecVec& fixedCandidateSplits() const {
+        return m_TreeImpl.m_FixedCandidateSplits;
     }
 
     void treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const {
@@ -912,6 +917,192 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
     LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
 
     BOOST_TEST_REQUIRE(rSquared > 0.94);
+}
+
+BOOST_AUTO_TEST_CASE(testLowCardinalityFeaturesFixedCandidateSplitsWithMissingValues) {
+
+    // Test that missing values don't leak into the fixed candidate splits of low
+    // cardinality features. Missing values are NaN, which is never equal to itself,
+    // so they must not be counted as extra distinct values.
+
+    std::size_t rows{500};
+    std::size_t cols{6};
+
+    test::CRandomNumbers rng;
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        for (auto& xj : x[i]) {
+            xj = std::floor(xj);
+        }
+    }
+
+    // Make 2% of each feature's values missing. The target uses the complete values
+    // so that no training rows are dropped.
+    TDoubleVecVec xMissing{x};
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        for (std::size_t j = i; j < rows; j += 50) {
+            xMissing[i][j] = core::CDataFrame::valueOfMissing();
+        }
+    }
+    auto target = [&](const TRowRef& row) {
+        double result{0.0};
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            result += static_cast<double>(i + 1) * x[i][row.index()];
+        }
+        return result;
+    };
+
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+    fillDataFrame(rows, 0, cols, xMissing, TDoubleVec(rows, 0.0), target, *frame);
+
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .buildForTrain(*frame, cols - 1);
+
+    // Each feature takes the values 0, 1, ..., 9 so its fixed candidate splits
+    // should be the midpoints 0.5, 1.5, ..., 8.5.
+    CBoostedTreeImplForTest treeImpl{regression->impl()};
+    std::size_t numberFixed{0};
+    for (const auto& splits : treeImpl.fixedCandidateSplits()) {
+        if (splits.empty() == false) {
+            ++numberFixed;
+            BOOST_REQUIRE_EQUAL(std::size_t{9}, splits.size());
+            for (std::size_t j = 0; j < splits.size(); ++j) {
+                BOOST_REQUIRE_EQUAL(static_cast<double>(j) + 0.5,
+                                    static_cast<double>(splits[j]));
+            }
+        }
+    }
+    BOOST_REQUIRE_EQUAL(cols - 1, numberFixed);
+}
+
+BOOST_AUTO_TEST_CASE(testLowCardinalityFeaturesWithMissingValues) {
+
+    // Test training a linear model on low cardinality features with a few missing
+    // values. Corrupted candidate splits produce splits which no training rows reach
+    // and degrade the model.
+
+    std::size_t trainRows{500};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    double noiseVariance{4.0};
+    std::size_t cols{6};
+
+    test::CRandomNumbers rng;
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        for (auto& xj : x[i]) {
+            xj = std::floor(xj);
+        }
+    }
+
+    // Make 2% of each feature's values missing. The target uses the complete values
+    // so that no training rows are dropped.
+    TDoubleVecVec xMissing{x};
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        for (std::size_t j = i; j < rows; j += 50) {
+            xMissing[i][j] = core::CDataFrame::valueOfMissing();
+        }
+    }
+    auto target = [&](const TRowRef& row) {
+        double result{0.0};
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            result += static_cast<double>(i + 1) * x[i][row.index()];
+        }
+        return result;
+    };
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+    fillDataFrame(trainRows, testRows, cols, xMissing, noise, target, *frame);
+
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .buildForTrain(*frame, cols - 1);
+
+    regression->train();
+    regression->predict();
+
+    // Every node should be reached by some of the rows its sample counts are
+    // computed from.
+    std::size_t numberZeroSampleNodes{0};
+    for (const auto& tree : regression->trainedModel()) {
+        for (const auto& node : tree) {
+            if (node.numberSamples() == 0) {
+                ++numberZeroSampleNodes;
+            }
+        }
+    }
+    BOOST_REQUIRE_EQUAL(std::size_t{0}, numberZeroSampleNodes);
+
+    double bias;
+    double rSquared;
+    std::tie(bias, rSquared) = computeEvaluationMetrics(
+        *frame, trainRows, rows,
+        [&](const TRowRef& row) { return regression->prediction(row)[0]; },
+        target, noiseVariance / static_cast<double>(rows));
+    LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
+
+    BOOST_TEST_REQUIRE(rSquared > 0.9);
+}
+
+BOOST_AUTO_TEST_CASE(testLowCardinalityFeatureAllMissingAfterSeparateEncoding) {
+
+    // Test that we can train when a low cardinality feature selected by encoding
+    // on one data set has no values in the data set we train on. Skipping missing
+    // values then leaves no distinct values for its fixed candidate splits.
+
+    std::size_t rows{300};
+    std::size_t cols{4};
+
+    test::CRandomNumbers rng;
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        for (auto& xj : x[i]) {
+            xj = std::floor(xj);
+        }
+    }
+    auto target = [&](const TRowRef& row) {
+        double result{0.0};
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            result += static_cast<double>(i + 1) * x[i][row.index()];
+        }
+        return result;
+    };
+
+    auto encodingFrame = core::makeMainStorageDataFrame(cols, rows).first;
+    fillDataFrame(rows, 0, cols, x, TDoubleVec(rows, 0.0), target, *encodingFrame);
+
+    std::stringstream persistState;
+    {
+        auto encoded = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                           .buildForEncode(*encodingFrame, cols - 1);
+        core::CJsonStatePersistInserter inserter(persistState);
+        encoded->acceptPersistInserter(inserter);
+        persistState.flush();
+    }
+
+    TDoubleVecVec xMissing{x};
+    std::fill(xMissing[0].begin(), xMissing[0].end(), core::CDataFrame::valueOfMissing());
+    auto trainingFrame = core::makeMainStorageDataFrame(cols, rows).first;
+    fillDataFrame(rows, 0, cols, xMissing, TDoubleVec(rows, 0.0), target, *trainingFrame);
+
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromString(persistState)
+                          .restoreFor(*trainingFrame, cols - 1);
+    regression->train();
+    regression->predict();
+
+    trainingFrame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            BOOST_REQUIRE(std::isfinite(regression->prediction(*row)[0]));
+        }
+    });
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
